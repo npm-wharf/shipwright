@@ -1,0 +1,8 @@
+{
+  "source": {
+    "owner": "npm",
+    "repo": "dockyard",
+    "file": "./package.json"
+  },
+  "module": "../spec/plugins/example"
+}

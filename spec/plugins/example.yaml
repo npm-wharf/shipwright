@@ -1,0 +1,6 @@
+source:
+  owner: npm
+  repo: dockyard
+  file: ./package.json
+  branch: not-master
+module: ./spec/plugins/example

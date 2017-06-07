@@ -1,0 +1,6 @@
+source:
+  owner: npm
+  repo: dockyard
+  file: ./package.json
+module: ./spec/plugins/example
+branch: update-dockyard-version
