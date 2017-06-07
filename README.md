@@ -1,6 +1,8 @@
 # dockyard
 A simple/consistent way to create build artifacts with calculated tags and then update related repositories (think packages, tarballs, docker builds, etc.).
 
+[![Build Status][travis-image]][travis-url]
+[![Coverage Status][coveralls-image]][coveralls-url]
 
 __Why!? (I Could Totally Have Done This With A Mere 200 Lines Of Bash)__
 
@@ -30,7 +32,6 @@ Builds a docker image with all default options. Read carefully, there are kindov
   * --skipPRs - defaults to `true`: should anything other than a Docker build is done for PRs
   * --noPush - prevents dockyard from pushing the image to the registry
   * --updateWith - specify an instruction file for how to send a PR to another GitHub repository's file
-
 
 ## `updateWith` - Instruction Files & PR Plugins
 The `updateWith` argument is way to plug in your own transformers after the fact to get dockyard to send a PR to another GitHub repository in order to update a single file.
@@ -108,3 +109,8 @@ The build information hash will contain the following properties:
  * separate command so that build and push are represented as different steps
  * add support for additional artifact types
  * support multiple artifact types per build
+
+[travis-url]: https://travis-ci.com/npm/dockyard
+[travis-image]: https://travis-ci.com/npm/dockyard.svg?token=nx7pjhpjyWEn4WyoMujZ&branch=master
+[coveralls-url]: https://coveralls.io/github/npm/dockyard
+[coveralls-image]: https://coveralls.io/repos/github/npm/dockyard/badge.svg?t=CQD4yS
