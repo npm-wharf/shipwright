@@ -4,9 +4,8 @@ A simple/consistent way to create build artifacts with calculated tags and then 
 [![Build Status][travis-image]][travis-url]
 [![Coverage Status][coveralls-image]][coveralls-url]
 
-__Why!? (I Could Totally Have Done This With A Mere 200 Lines Of Bash)__
+__Why Not Bash?__
 
-Yes, and I actually had done a good bit of that but:
  * copy pasta'd shell script is tough to maintain, "did I copy that change to all 20+ repos?"
  * automated testing is nicer than pushing to CI to see what will happen
  * with an increasing set of integration/features I prefer JS as a way to develop and share these features/ideas
@@ -61,7 +60,7 @@ Any other values included in the file itself will be deserialized and passed to 
   "source": {
     "owner": "me",
     "repo": "test",
-    "file": "somefile.txt"
+    "file": "somefile.txt",
     "branch": "master"
   },
   "module": "myPlugin",
