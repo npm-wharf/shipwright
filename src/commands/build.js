@@ -1,6 +1,7 @@
 var path = require( "path" );
 var yargs = require( "yargs" );
 var settings = require( "../settings" );
+var when = require( "when" );
 
 function build( info, settings ) {
   var set = {
@@ -14,20 +15,20 @@ function build( info, settings ) {
       describe: "the name of the image/artifact",
       default: settings.getDefaultName( info )
     },
-    workingPath: {
+    "working-path": {
       alias: "p",
       describe: "the working path for the build",
       default: settings.getDefaultWorkingPath()
     },
-    dockerFile: {
+    "docker-file": {
       alias: "d",
       describe: "the Docker file for the image build",
       default: settings.getDefaultDockerfile( info )
     },
-    namePrefix: {
+    "name-prefix": {
       describe: "optional prefix for the default package name"
     },
-    namePostfix: {
+    "name-postfix": {
       describe: "optional postfix for the default package name"
     },
     tags: {
@@ -40,22 +41,24 @@ function build( info, settings ) {
       default: "hub.docker.com"
     },
     output: {
+      alias: "o",
       describe: "where to write image metadata",
       default: "./.image.json"
     },
-    skipPRs: {
+    "skip-prs": {
+      alias: "s",
       describe: "ignores command if the context is in a CI PR",
       default: true
     },
-    ltsOnly: {
+    "lts-only": {
       describe: "limits the build for LTS versions of Node only",
-      default: false
+      default: true
     },
-    noPush: {
+    "no-push": {
       describe: "prevents dockyard from pushing the image to the registry",
       default: false
     },
-    updateWith: {
+    "update-with": {
       describe: "specify an instruction file for how to send a PR to update another GitHub repository's file"
     },
     sudo: {
@@ -70,21 +73,21 @@ function handle( dockyard, github, info, argv ) {
   return dockyard.buildImage( {
     repo: argv[ "repo" ],
     name: argv[ "name" ],
-    workingPath: argv[ "workingPath" ],
-    dockerFile: argv[ "dockerFile" ],
-    namePrefix: argv[ "namePrefix" ],
-    namePostfix: argv[ "namePostfix" ],
+    workingPath: argv[ "working-path" ],
+    dockerFile: argv[ "docker-file" ],
+    namePrefix: argv[ "name-prefix" ],
+    namePostfix: argv[ "name-Postfix" ],
     tags: argv[ "tags" ],
     registry: argv[ "registry" ],
     output: argv[ "output" ],
-    skipPRs: argv[ "skipPRs" ],
-    ltsOnly: argv[ "ltsOnly" ],
-    noPush: argv[ "noPush" ],
+    skipPRs: argv[ "skip-prs" ],
+    ltsOnly: argv[ "lts-only" ],
+    noPush: argv[ "no-push" ],
     defaultInfo: info
   } )
   .then(
     function( buildInfo ) {
-      if( argv.updateWith ) {
+      if( argv[ "update-with" ] ) {
         updateWith( github, buildInfo );
       } else {
         process.exit( 0 );

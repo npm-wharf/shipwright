@@ -18,19 +18,20 @@ Builds a docker image with all default options. Read carefully, there are kindov
 
   * --repo - the image repository to build for, **no default**
   * --name - defaults to the package's `name`
-  * --namePrefix - optionally prefix default package name
-  * --namePostfix - optionally postfix default package name
-  * --workingPath - the working directory for the build, defaults to `./`
-  * --dockerFile - the DockerFile to use, defaults to `./Dockerfile`
+  * --name-prefix - optionally prefix default package name
+  * --name-postfix - optionally postfix default package name
+  * --working-path - the working directory for the build, defaults to `./`
+  * --docker-file - the DockerFile to use, defaults to `./Dockerfile`
   * --tags - defaults are: (see [buildgoggles](https://github.com/arobson/buildgoggles) for tag specifications)
     * `v_s,v,miv,ma` for tagged builds: [ `1.2.3_abcdefgh`, `1.2`, `1` ]
     * `v_c_s` for master commits: [ `1.2.3_10_abcdefgh` ]
     * `b_v_c_s` in any other branch if the commit contained `[build-image]`: [ `branch_1.2.3_10_abcdefgh` ]
   * --registry - defaults to hub.docker.com
-  * --ltsOnly - defaults to `true`: when true, skips everything for non-LTS Node versions 
-  * --skipPRs - defaults to `true`: should anything other than a Docker build is done for PRs
-  * --noPush - prevents dockyard from pushing the image to the registry
-  * --updateWith - specify an instruction file for how to send a PR to another GitHub repository's file
+  * --lts-only - defaults to `true`: when true, skips everything for non-LTS Node versions 
+  * --skip-prs - defaults to `true`: should anything other than a Docker build is done for PRs
+  * --no-push - prevents dockyard from pushing the image to the registry
+  * --update-with - specify an instruction file for how to send a PR to another GitHub repository's file
+  * --sudo - defaults to `true`: use sudo with Docker commands
 
 ## `updateWith` - Instruction Files & PR Plugins
 The `updateWith` argument is way to plug in your own transformers after the fact to get dockyard to send a PR to another GitHub repository in order to update a single file.

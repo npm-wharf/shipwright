@@ -3,7 +3,10 @@ var format = require( "util" ).format;
 var path = require( "path" );
 var goggles = require( "buildgoggles" );
 var githubChangeRemoteFile = require( "github-change-remote-file" );
-var docker = require( "pequod" );
+var pequod = require( "pequod" );
+var docker = function( sudo ) {
+  return pequod( sudo, log );
+}
 var settings = require( "../src/settings" )( goggles );
 var dockyard = require( "../src/index" )( log, goggles, docker, settings );
 var github = require( "../src/github" )( log, githubChangeRemoteFile );
@@ -21,6 +24,15 @@ settings
       .version()
       .argv;
 } );
+
+function dockerLog( lines ) {
+  lines.split( "\n" )
+    .forEach( function( line ) {
+      if( line ) {
+        console.log( "\u1F433  " + line );
+      }
+    } );
+}
 
 function log() {
   var args = Array.prototype.slice.call( arguments );

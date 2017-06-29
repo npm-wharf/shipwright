@@ -3,12 +3,16 @@
   "version": "1.0.0",
   "description": "artifact packaging for service builds",
   "main": "src/index.js",
+  "bin": {
+    "dockyard": "./bin/dockyard"
+  },
   "dependencies": {
     "buildgoggles": "^0.4.0",
     "github-change-remote-file": "^4.2.0",
     "js-yaml": "^3.8.4",
     "pequod": "^1.3.0",
     "replicated-scribe": "^1.0.0",
+    "when": "^3.7.8",
     "yargs": "^8.0.1"
   },
   "devDependencies": {
