@@ -1,0 +1,11 @@
+# Change Log
+
+All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+
+<a name="1.1.0"></a>
+# [1.1.0](https://github.com/npm/dockyard/compare/v1.0.0...v1.1.0) (2017-07-07)
+
+
+### Features
+
+* improve logging and add verbose option to allow inclusion of Docker build output ([36d8e69](https://github.com/npm/dockyard/commit/36d8e69))
