@@ -181,8 +181,7 @@ describe( "Dockyard", function() {
       expect( function() {
         dockyard.onBuildFailed( "test", failure );
       } ).to.throw( failure );
-      log.should.have.been.calledWith( "Docker build for image '%s' failed with:", "test" );
-      log.should.have.been.calledWith( failure );
+      log.should.have.been.calledWith( "Docker build for image '%s' failed: %s", "test", "fail" );
     } );
 
     it( "should log push failure", function() {
@@ -191,9 +190,9 @@ describe( "Dockyard", function() {
         dockyard.onPushFailed( "test", failure );
       } ).to.throw( failure );
       log.should.have.been.calledWith(
-        "Pushing the image '%s' failed for some or all tags with error:\n %s",
+        "Pushing the image '%s' failed for some or all tags:\n %s",
         "test",
-        failure
+        failure.message
       );
     } );
 

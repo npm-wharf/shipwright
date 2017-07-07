@@ -64,6 +64,10 @@ function build( info, settings ) {
     sudo: {
       describe: "indicates sudo should be used with docker commands",
       default: false
+    },
+    verbose: {
+      describe: "includes docker build output",
+      default: false
     }
   };
   return set;

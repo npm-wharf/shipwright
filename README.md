@@ -32,6 +32,7 @@ Builds a docker image with all default options. Read carefully, there are kindov
   * --no-push - prevents dockyard from pushing the image to the registry
   * --update-with - specify an instruction file for how to send a PR to another GitHub repository's file
   * --sudo - defaults to `true`: use sudo with Docker commands
+  * --verbose - defaults to `false`: include Docker build output in console logs
 
 ## `updateWith` - Instruction Files & PR Plugins
 The `updateWith` argument is way to plug in your own transformers after the fact to get dockyard to send a PR to another GitHub repository in order to update a single file.

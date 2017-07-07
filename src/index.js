@@ -31,13 +31,17 @@ function buildImage( log, settings, goggles, dockerFactory, options ) {
   var info;
   log( "Building Docker image '%s'.", imageName );
   return docker.build( imageName, workingPath, path.relative( workingPath, dockerFile ) )
-    .then( function() {
-      log( "Docker image '%s' built successfully.", imageName );
-    } )
     .then(
-      writeBuildInfo.bind( null, log, goggles, workingPath, imageName, tagSpecs, defaultInfo ),
+      function() {
+        log( "Docker image '%s' built successfully.", imageName );
+      },
       onBuildFailed.bind( null, log, imageName )
     )
+    .catch( exitOnError )
+    .then(
+      writeBuildInfo.bind( null, log, goggles, workingPath, imageName, tagSpecs, defaultInfo )
+    )
+    .catch( exitOnError )
     .then( function( buildInfo ) {
       info = buildInfo;
       return info;
@@ -46,14 +50,17 @@ function buildImage( log, settings, goggles, dockerFactory, options ) {
       tagImage.bind( null, log, docker, skipPRs, imageName ),
       onWriteInfoFailed.bind( null, log )
     )
+    .catch( exitOnError )
     .then(
       pushImage.bind( null, log, docker, noPush, imageName ),
       onTagFailed.bind( null, log, info )
     )
+    .catch( exitOnError )
     .then(
       writeImageFile.bind( null, log, imageFile, imageName ),
       onPushFailed.bind( null, log, imageName )
-    );
+    )
+    .catch( exitOnError );
 }
 
 function dockerLog( lines ) {
@@ -63,6 +70,10 @@ function dockerLog( lines ) {
         console.log( "\u1F433  " + line );
       }
     } );
+}
+
+function exitOnError() {
+  process.exit(100);
 }
 
 function getBuildInfo( goggles, unlink, workingPath, tags ) {
@@ -75,14 +86,13 @@ function getBuildInfo( goggles, unlink, workingPath, tags ) {
     } );
 }
 
-function onBuildFailed( log, imageName, buildErr ) {
-  log( "Docker build for image '%s' failed with:", imageName );
-  log( buildErr );
-  throw buildErr;
+function onBuildFailed( log, imageName, buildError ) {
+  log( "Docker build for image '%s' failed: %s", imageName, buildError.message );
+  throw buildError;
 }
 
 function onPushFailed( log, imageName, pushError ) {
-  log( "Pushing the image '%s' failed for some or all tags with error:\n %s", imageName, pushError );
+  log( "Pushing the image '%s' failed for some or all tags:\n %s", imageName, pushError.message );
   throw pushError;
 }
 
@@ -91,9 +101,9 @@ function onTagFailed( log, imageName, info, tagError ) {
   throw tagError;
 }
 
-function onWriteInfoFailed( log, writeErr ) {
-  log( "Failed to acquire and write build information due to error: %s", writeErr );
-  throw writeErr;
+function onWriteInfoFailed( log, writeError ) {
+  log( "Failed to acquire and write build information due to error: %s", writeError );
+  throw writeError;
 }
 
 function pushImage( log, docker, noPush, imageName, info ) {
