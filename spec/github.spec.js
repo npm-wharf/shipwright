@@ -212,12 +212,9 @@ describe( "GitHub", function() {
 
     it( "should fail to load invalid json", function() {
       return github.getOptions( "./spec/plugins/nope.json" )
-        .should.be.rejectedWith( Error,
-          format(
-            "Error deserializing change file '%s': %s",
-            path.resolve( "./spec/plugins/nope.json" ),
-            "Unexpected token w in JSON at position 0"
-          ) );
+        .should.be.rejectedWith(Error,
+          /Error deserializing change.*nope\.json/
+        );
     } );
 
     it( "should fail to load invalid extention", function() {
