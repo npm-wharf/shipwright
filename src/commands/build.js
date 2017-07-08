@@ -48,26 +48,31 @@ function build( info, settings ) {
     "skip-prs": {
       alias: "s",
       describe: "ignores command if the context is in a CI PR",
-      default: true
+      default: true,
+      type: 'boolean'
     },
     "lts-only": {
       describe: "limits the build for LTS versions of Node only",
-      default: true
+      default: true,
+      type: 'boolean'
     },
     "no-push": {
       describe: "prevents dockyard from pushing the image to the registry",
-      default: false
+      default: false,
+      type: 'boolean'
     },
     "update-with": {
       describe: "specify an instruction file for how to send a PR to update another GitHub repository's file"
     },
     sudo: {
       describe: "indicates sudo should be used with docker commands",
-      default: false
+      default: false,
+      type: 'boolean'
     },
     verbose: {
       describe: "includes docker build output",
-      default: false
+      default: false,
+      type: 'boolean'
     }
   };
   return set;
