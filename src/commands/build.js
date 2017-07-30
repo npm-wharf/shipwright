@@ -31,7 +31,7 @@ function build (info, settings) {
     tags: {
       alias: 't',
       describe: 'tag specifications (used by buildgoggles to create tags)',
-      default: settings.getDefaultTagSpecs(info)
+      default: settings.getDefaultTagSpecs(['dev', 'qa', 'staging'], info)
     },
     'always-build': {
       alias: 'a',
