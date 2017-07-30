@@ -4,10 +4,10 @@
   "description": "artifact packaging for service builds",
   "main": "src/index.js",
   "bin": {
-    "dockyard": "./bin/dockyard"
+    "dockyard": "./bin/dockyard.js"
   },
   "dependencies": {
-    "buildgoggles": "0.4.x",
+    "buildgoggles": "0.5.x",
     "github-change-remote-file": "^4.2.0",
     "js-yaml": "^3.8.4",
     "pequod": "^1.3.0",
@@ -24,13 +24,15 @@
     "nyc": "^10.3.2",
     "sinon": "^2.3.0",
     "sinon-chai": "^2.10.0",
+    "standard": "^10.0.2",
     "standard-version": "^4.2.0"
   },
   "scripts": {
     "test": "node_modules/mocha/bin/mocha spec/*.spec.js",
     "coverage": "nyc npm test",
     "continuous": "./node_modules/mocha/bin/mocha spec/*.spec.js -w",
-    "release": "standard-version"
+    "release": "standard-version",
+    "standard": "standard --fix"
   },
   "repository": {
     "type": "git",
@@ -46,5 +48,15 @@
   "bugs": {
     "url": "https://github.com/npm/dockyard/issues"
   },
-  "homepage": "https://github.com/npm/dockyard#readme"
+  "homepage": "https://github.com/npm/dockyard#readme",
+  "standard": {
+    "env": [
+      "mocha"
+    ],
+    "globals": [
+      "fetch",
+      "sinon",
+      "expect"
+    ]
+  }
 }

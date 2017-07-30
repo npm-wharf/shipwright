@@ -13,7 +13,7 @@ __Why Not Bash?__
 ## CLI
 Right now this mashes a lot of other tools into a promise chain behind a single command.
 
-#### dockyard build image
+### dockyard build image
 Builds a docker image with all default options. Read carefully, there are kindovalot.
 
   * --repo - the image repository to build for, **no default**
@@ -23,9 +23,12 @@ Builds a docker image with all default options. Read carefully, there are kindov
   * --working-path - the working directory for the build, defaults to `./`
   * --docker-file - the DockerFile to use, defaults to `./Dockerfile`
   * --tags - defaults are: (see [buildgoggles](https://github.com/arobson/buildgoggles) for tag specifications)
-    * `v_s,v,miv,ma` for tagged builds: [ `1.2.3_abcdefgh`, `1.2`, `1` ]
-    * `v_c_s` for master commits: [ `1.2.3_10_abcdefgh` ]
-    * `b_v_c_s` in any other branch if the commit contained `[build-image]`: [ `branch_1.2.3_10_abcdefgh` ]
+    * `lt,v_s,v,miv,ma` `[ 'latest', '1.2.3_abcdefgh', '1.2.3', '1.2', '1' ]` - for tagged builds
+    * `v_c_s` `[ '1.2.3_10_abcdefgh' ]` - for master commits
+    * `b_v_c_s` `[ 'branch_1.2.3_10_abcdefgh' ]` - in any other branch when:
+      * `--always-build` is an argument
+      * `--build-branches` contains the current branch
+      * the commit message contains `[build-image]`
   * --registry - defaults to hub.docker.com
   * --lts-only - defaults to `true`: when true, skips everything for non-LTS Node versions 
   * --skip-prs - defaults to `true`: should anything other than a Docker build is done for PRs
@@ -33,6 +36,56 @@ Builds a docker image with all default options. Read carefully, there are kindov
   * --update-with - specify an instruction file for how to send a PR to another GitHub repository's file
   * --sudo - defaults to `true`: use sudo with Docker commands
   * --verbose - defaults to `false`: include Docker build output in console logs
+  * --always-build - always produce a build regardless of the branch by providing the default tag specification `[ 'b_v_c_s' ]` if no other tags have been specified
+  * --build-branches - defaults to `[ 'staging', 'qa', 'dev' ]`: a list of branches to build for (other than master) with the default tag specification `[ 'b_v_c_s' ]` if no other tags have been specified. 
+
+### Use cases for `--always-build` and `--build-branches`
+
+These flags are intended to supply ways to get dockyard to generate build images for development branches without disrupting the useful default tag specs provided for master and tagged builds and without having to constantly rely on filling your commit log with `[build-image]`.
+
+The `build-branches` defaults effectively guarantee you'll get build images if you push to branches named `staging`, `qa`, or `dev`.
+
+### Default Build Behavior
+
+With all the tags, it is a bit unclear what the dockyard's default behavior actually would be if you were to, for example, just add the following lines to travis:
+
+```shell
+after_success:
+  - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+  - dockyard build image --repo=myRepo --name=imageName 
+```
+
+#### For Builds On Master (With Git Tags On The Commit)
+
+A docker image will get built, tagged and pushed with the following tags:
+
+ * `latest`
+ * `1`
+ * `1.2`
+ * `1.2.3`
+ * `1.2.3_abcdefgh`
+
+#### For Builds On Master (Without Git Tags On The Commit)
+
+A docker image will get built, tagged and pushed with a tag that contains the version, build number and commit sha:
+
+ * `1.2.3_10_abcdefgh`
+
+#### For Builds On A `--build-branches` (`staging`, `qa`, `dev`)
+
+A docker image will get built, tagged and pushed with a tag that contains the branch name, version, build number, and commit sha:
+
+ * `branch-name_1.2.3_10_abcdefgh`
+
+#### For Builds With `[build-image]` In The Commit Message
+
+Even without adding flags, you can still get a build on any branch with the tag specification that contains the branch, version:
+
+ * `branch-name_1.2.3_10_abcdefgh`
+
+#### For PRs and Builds On Non-LTS Versions of Node
+
+Dockyard won't do _anything_ at all. This is to avoid drawing out the build times on your CI server. You can change these behaviors with the `skip-prs` and `lts-only` flags, of course, but this is about default build behavior.
 
 ## `updateWith` - Instruction Files & PR Plugins
 The `updateWith` argument is way to plug in your own transformers after the fact to get dockyard to send a PR to another GitHub repository in order to update a single file.
