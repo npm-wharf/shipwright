@@ -43,7 +43,7 @@ describe('Settings', function () {
 
     it('should get default tags when tagged', function () {
       settings.getDefaultTagSpecs([], { ci: { tagged: true } })
-        .should.eql([ 'v_s', 'v', 'miv', 'ma' ])
+        .should.eql([ 'lt', 'v_s', 'v', 'miv', 'ma' ])
     })
 
     it('should get default tags when on master branch', function () {

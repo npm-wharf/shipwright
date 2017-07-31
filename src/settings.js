@@ -30,7 +30,7 @@ function getDefaultName (info) {
 
 function getDefaultTagSpecs (branches, info) {
   if (info.ci && info.ci.tagged) {
-    return [ 'v_s', 'v', 'miv', 'ma' ]
+    return [ 'lt', 'v_s', 'v', 'miv', 'ma' ]
   } else if (info.branch === 'master') {
     return [ 'v_c_s' ]
   } else if (branches.indexOf(info.branch) >= 0) {
