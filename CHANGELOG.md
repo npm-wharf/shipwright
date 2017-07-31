@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.2.2"></a>
+## [1.2.2](https://github.com/npm/dockyard/compare/v1.2.1...v1.2.2) (2017-07-31)
+
+
+### Bug Fixes
+
+* add missing tag specification for tagged builds ([f74244b](https://github.com/npm/dockyard/commit/f74244b))
+
+
+
 <a name="1.2.1"></a>
 ## [1.2.1](https://github.com/npm/dockyard/compare/v1.2.0...v1.2.1) (2017-07-30)
 
