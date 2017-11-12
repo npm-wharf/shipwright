@@ -87,18 +87,22 @@ function build (info, settings) {
 }
 
 function handle (dockyard, github, info, argv) {
+  if (argv.tags && /[,]/.test(argv.tags)) {
+    argv.tags = argv.tags.split(',')
+    console.log(argv.tags)
+  }
   return dockyard.buildImage({
-    repo: argv[ 'repo' ],
-    name: argv[ 'name' ],
+    repo: argv.repo,
+    name: argv.name,
     workingPath: argv[ 'working-path' ],
     dockerFile: argv[ 'docker-file' ],
     namePrefix: argv[ 'name-prefix' ],
     namePostfix: argv[ 'name-Postfix' ],
     alwaysBuild: argv[ 'always-build' ],
     buildBranches: argv[ 'build-branches' ],
-    tags: argv[ 'tags' ],
-    registry: argv[ 'registry' ],
-    output: argv[ 'output' ],
+    tags: argv.tags,
+    registry: argv.registry,
+    output: argv.output,
     skipPRs: argv[ 'skip-prs' ],
     ltsOnly: argv[ 'lts-only' ],
     noPush: argv[ 'no-push' ],
