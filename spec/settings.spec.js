@@ -1,13 +1,13 @@
 require('./setup.js')
-var fs = require('fs')
-var path = require('path')
-var when = require('when')
+const fs = require('fs')
+const path = require('path')
+const when = require('when')
 
-var goggles = {
+const goggles = {
   getInfo: function () {}
 }
 
-var settings = require('../src/settings')(goggles)
+const settings = require('../src/settings')(goggles)
 
 describe('Settings', function () {
   describe('getting defaults', function () {
