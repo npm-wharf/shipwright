@@ -7,7 +7,7 @@
     "dockyard": "./bin/dockyard.js"
   },
   "dependencies": {
-    "buildgoggles": "0.5.x",
+    "buildgoggles": "^0.5.1",
     "github-change-remote-file": "^4.2.0",
     "js-yaml": "^3.8.4",
     "pequod": "^1.3.0",
@@ -36,7 +36,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/npm/dockyard.git"
+    "url": "git://github.com/npm-wharf/dockyard.git"
   },
   "keywords": [
     "build",
@@ -46,9 +46,9 @@
   "author": "Alex Robson",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/npm/dockyard/issues"
+    "url": "https://github.com/npm-wharf/dockyard/issues"
   },
-  "homepage": "https://github.com/npm/dockyard#readme",
+  "homepage": "https://github.com/npm-wharf/dockyard#readme",
   "standard": {
     "env": [
       "mocha"

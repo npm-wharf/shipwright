@@ -1,34 +1,34 @@
-var fs = require('fs')
-var path = require('path')
-var when = require('when')
-var DEFAULT_REGISTRY = 'https://hub.docker.com'
+const fs = require('fs')
+const path = require('path')
+const when = require('when')
+const DEFAULT_REGISTRY = 'https://hub.docker.com'
 
 function buildImage (log, settings, goggles, dockerFactory, options) {
-  var repo = options.repo
-  var name = options.name
-  var workingPath = options.workingPath || settings.getDefaultDockerfile()
-  var dockerFile = options.dockerFile || settings.getDefaultDockerfile()
-  var namePrefix = options.namePrefix
-  var namePostfix = options.namePostfix
-  var alwaysBuild = options.alwaysBuild
-  var buildBranches = alwaysBuild ? [options.defaultInfo.branch] : (options.buildBranches || '').split(',')
-  var tagSpecs = options.tags && options.tags.length
+  const repo = options.repo
+  const name = options.name
+  const workingPath = options.workingPath || settings.getDefaultDockerfile()
+  const dockerFile = options.dockerFile || settings.getDefaultDockerfile()
+  const namePrefix = options.namePrefix
+  const namePostfix = options.namePostfix
+  const alwaysBuild = options.alwaysBuild
+  const buildBranches = alwaysBuild ? [options.defaultInfo.branch] : (options.buildBranches || '').split(',')
+  const tagSpecs = options.tags && options.tags.length
     ? options.tags : settings.getDefaultTagSpecs(buildBranches, options.defaultInfo)
-  var registry = options.registry
-  var output = options.output || '.image.json'
-  var skipPRs = options.skipPRs
-  var ltsOnly = options.ltsOnly
-  var noPush = options.noPush || false
-  var defaultInfo = options.defaultInfo
-  var docker = dockerFactory(options.sudo || false, dockerLog)
+  const registry = options.registry
+  const output = options.output || '.image.json'
+  const skipPRs = options.skipPRs
+  const ltsOnly = options.ltsOnly
+  const noPush = options.noPush || false
+  const defaultInfo = options.defaultInfo
+  const docker = dockerFactory(options.sudo || false, dockerLog)
 
-  var baseImage = [ namePrefix, name, namePostfix ].join('')
-  var imageParts = [ repo, baseImage ]
+  const baseImage = [ namePrefix, name, namePostfix ].join('')
+  const imageParts = [ repo, baseImage ]
   if (registry !== DEFAULT_REGISTRY && registry) {
     imageParts.unshift(registry)
   }
-  var imageName = imageParts.join('/')
-  var imageFile = path.join(workingPath, output)
+  const imageName = imageParts.join('/')
+  const imageFile = path.join(workingPath, output)
 
   if (ltsOnly && !defaultInfo.isLTS) {
     log('Skipping build - Node version (%s) is not LTS', process.version)
@@ -39,7 +39,7 @@ function buildImage (log, settings, goggles, dockerFactory, options) {
   log("Building Docker image '%s'.", imageName)
   return docker.build(imageName, workingPath, path.relative(workingPath, dockerFile))
     .then(
-      function () {
+      () => {
         log("Docker image '%s' built successfully.", imageName)
       },
       onBuildFailed.bind(null, log, imageName)
@@ -49,10 +49,12 @@ function buildImage (log, settings, goggles, dockerFactory, options) {
       writeBuildInfo.bind(null, log, goggles, workingPath, imageName, tagSpecs, defaultInfo)
     )
     .catch(exitOnError)
-    .then(function (buildInfo) {
-      info = buildInfo
-      return info
-    })
+    .then(
+      buildInfo => {
+        info = buildInfo
+        return info
+      }
+    )
     .then(
       tagImage.bind(null, log, docker, skipPRs, imageName),
       onWriteInfoFailed.bind(null, log)
@@ -72,11 +74,13 @@ function buildImage (log, settings, goggles, dockerFactory, options) {
 
 function dockerLog (lines) {
   lines.split('\n')
-    .forEach(function (line) {
-      if (line) {
-        console.log('\u1F433  ' + line)
+    .forEach(
+      line => {
+        if (line) {
+          console.log('\u1F433  ' + line)
+        }
       }
-    })
+    )
 }
 
 function exitOnError () {
@@ -85,12 +89,14 @@ function exitOnError () {
 
 function getBuildInfo (goggles, unlink, workingPath, tags) {
   return goggles.getInfo({ repo: workingPath, tags: tags })
-    .then(function (info) {
-      if (unlink) {
-        fs.unlinkSync(path.resolve(workingPath, '.buildinfo.json'))
+    .then(
+      info => {
+        if (unlink) {
+          fs.unlinkSync(path.resolve(workingPath, '.buildinfo.json'))
+        }
+        return info
       }
-      return info
-    })
+    )
 }
 
 function onBuildFailed (log, imageName, buildError) {
@@ -121,7 +127,7 @@ function pushImage (log, docker, noPush, imageName, info) {
     log('Pushing image.')
     return docker.pushTags(imageName)
       .then(
-        function () {
+        () => {
           log("Docker image '%s' was pushed successfully with tags: %s", imageName, info.tag)
           return info
         }
@@ -136,9 +142,9 @@ function tagImage (log, docker, skipPRs, imageName, info) {
   } else {
     log('Tagging image.')
     return docker.tagImage(imageName)
-      .then(function () {
-        return info
-      })
+      .then(
+        () => info
+      )
   }
 }
 
@@ -146,10 +152,25 @@ function writeBuildInfo (log, goggles, workingPath, imageName, tags, info) {
   if (tags.length > 0) {
     return getBuildInfo(goggles, false, workingPath, tags)
       .then(
-        function (newInfo) {
-          newInfo.continue = true
+        newInfo => {
+          if (newInfo.tag && newInfo.tag.length) {
+            newInfo.tag = newInfo.tag.reduce((acc, t) => {
+              if (t && t.length > 0) {
+                acc.push(t)
+              }
+              return acc
+            }, [])
+          }
+          if (!newInfo.tag || newInfo.tag.length === 0) {
+            log('Tag specification resulted in an empty tag set, skipping tag and push.')
+            log(`branch - '${info ? info.branch : 'N/A'}', PR - '${info ? info.ci.pullRequest : 'N/A'}', tag spec - '${tags}'`)
+            newInfo.continue = false
+          } else {
+            newInfo.continue = true
+          }
           return newInfo
-        })
+        }
+      )
   } else {
     log('No tags were specified, skipping tag and push.')
     log('branch - %s, PR - %s, tagged - %s',
@@ -168,12 +189,12 @@ function writeImageFile (log, imageFile, imageName, info) {
   } else {
     log("Writing image file to '%s'.", imageFile)
     info.imageName = imageName
-    return when.promise(function (resolve, reject) {
-      var json = JSON.stringify({
+    return when.promise((resolve, reject) => {
+      const json = JSON.stringify({
         image: imageName,
         tags: info.tag
       })
-      fs.writeFile(imageFile, json, 'utf8', function (err) {
+      fs.writeFile(imageFile, json, 'utf8', err => {
         if (err) {
           log("Failed to write image file to '%s' with error: %s", imageFile, err)
           reject(err)

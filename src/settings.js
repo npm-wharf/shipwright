@@ -1,14 +1,16 @@
-var fs = require('fs')
-var path = require('path')
+const fs = require('fs')
+const path = require('path')
 
 function getBuildInfo (goggles, unlink, workingPath, tags) {
   return goggles.getInfo({ repo: workingPath, tags: tags })
-    .then(function (info) {
-      if (unlink) {
-        fs.unlinkSync(path.resolve(workingPath, '.buildinfo.json'))
+    .then(
+      info => {
+        if (unlink) {
+          fs.unlinkSync(path.resolve(workingPath, '.buildinfo.json'))
+        }
+        return info
       }
-      return info
-    })
+    )
 }
 
 function getDefaultInfo (goggles) {
@@ -24,7 +26,7 @@ function getDefaultDockerfile () {
 }
 
 function getDefaultName (info) {
-  var pkg = require(path.resolve(info.path, './package.json'))
+  const pkg = require(path.resolve(info.path, './package.json'))
   return pkg.name
 }
 

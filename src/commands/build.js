@@ -1,7 +1,7 @@
-var when = require('when')
+const when = require('when')
 
 function build (info, settings) {
-  var set = {
+  const set = {
     repo: {
       alias: 'r',
       describe: 'the repository to build for',
@@ -105,26 +105,24 @@ function handle (dockyard, github, info, argv) {
     defaultInfo: info
   })
   .then(
-    function (buildInfo) {
+    buildInfo => {
       if (argv[ 'update-with' ]) {
         updateWith(github, buildInfo, argv)
       } else {
         process.exit(0)
       }
     },
-    function () {
-      process.exit(1)
-    }
+    () => process.exit(1)
   )
 }
 
 function updateWith (github, buildInfo, argv) {
-  var files = [].concat(argv.updateWith)
-  var update = github.updateWith.bind(null, buildInfo)
+  const files = [].concat(argv.updateWith)
+  const update = github.updateWith.bind(null, buildInfo)
   when.all(files.map(update))
     .then(
-      function () { process.exit(0) },
-      function () { process.exit(1) }
+      () => process.exit(0),
+      () => process.exit(1)
     )
 }
 

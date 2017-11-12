@@ -1,9 +1,9 @@
 require('./setup.js')
-var path = require('path')
-var format = require('util').format
-var log = sinon.spy(function () {})
-var githubChangeFile = sinon.stub()
-var github = require('../src/github')(log, githubChangeFile)
+const path = require('path')
+const format = require('util').format
+const log = sinon.spy(function () {})
+const githubChangeFile = sinon.stub()
+const github = require('../src/github')(log, githubChangeFile)
 
 describe('GitHub', function () {
   it('should log options file load failures in correct format', function () {

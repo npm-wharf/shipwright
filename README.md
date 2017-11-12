@@ -164,7 +164,7 @@ The build information hash will contain the following properties:
  * add support for additional artifact types
  * support multiple artifact types per build
 
-[travis-url]: https://travis-ci.com/npm/dockyard
-[travis-image]: https://travis-ci.com/npm/dockyard.svg?token=nx7pjhpjyWEn4WyoMujZ&branch=master
-[coveralls-url]: https://coveralls.io/github/npm/dockyard
-[coveralls-image]: https://coveralls.io/repos/github/npm/dockyard/badge.svg?t=CQD4yS
+[travis-url]: https://travis-ci.org/npm-wharf/dockyard
+[travis-image]: https://travis-ci.org/npm-wharf/dockyard.svg?branch=master
+[coveralls-url]: https://coveralls.io/github/npm-wharf/dockyard?branch=master
+[coveralls-image]: https://coveralls.io/repos/github/npm-wharf/dockyard/badge.svg?branch=master

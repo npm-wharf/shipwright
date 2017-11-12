@@ -1,11 +1,11 @@
-var format = require('util').format
-var fs = require('fs')
-var yaml = require('js-yaml')
-var path = require('path')
-var when = require('when')
+const format = require('util').format
+const fs = require('fs')
+const yaml = require('js-yaml')
+const path = require('path')
+const when = require('when')
 
 function createPR (log, githubChangeFile, buildInfo, options) {
-  return when.promise(function (resolve, reject) {
+  return when.promise((resolve, reject) => {
     log("Creating pull request to '%s/%s:%s' to change file '%s'",
       options.source.owner,
       options.source.repo,
@@ -21,34 +21,38 @@ function createPR (log, githubChangeFile, buildInfo, options) {
       transform: options.transform,
       token: process.env.GITHUB_API_TOKEN
     })
-    .then(function (result) {
-      resolve(result)
-    })
-    .catch(function (error) {
-      reject(new Error(
-        format("Failed to create PR to '%s/%s:%s' to update file '%s' due to error: %s",
-          options.source.owner,
-          options.source.repo,
-          options.source.branch,
-          options.source.file,
-          error.message
-        )
-      ))
-    })
+    .then(
+      result => {
+        resolve(result)
+      }
+    )
+    .catch(
+      error => {
+        reject(new Error(
+          format("Failed to create PR to '%s/%s:%s' to update file '%s' due to error: %s",
+            options.source.owner,
+            options.source.repo,
+            options.source.branch,
+            options.source.file,
+            error.message
+          )
+        ))
+      }
+    )
   })
 }
 
 function getOptions (log, changeFile) {
-  var fullPath = path.resolve(changeFile)
-  return when.promise(function (resolve, reject) {
+  const fullPath = path.resolve(changeFile)
+  return when.promise((resolve, reject) => {
     if (!fs.existsSync(fullPath)) {
       reject(new Error(format("Invalid change file path specified '%s'", fullPath)))
     } else {
-      var ext = path.extname(changeFile)
+      const ext = path.extname(changeFile)
       log("Reading PR option file '%s'.", fullPath)
       try {
-        var content = fs.readFileSync(fullPath, 'utf8')
-        var options
+        const content = fs.readFileSync(fullPath, 'utf8')
+        let options
         if (ext === '.json') {
           options = JSON.parse(content)
         } else if (/[.]ya?ml/.test(ext)) {
@@ -65,7 +69,7 @@ function getOptions (log, changeFile) {
 }
 
 function loadModule (log, buildInfo, options) {
-  return when.promise(function (resolve, reject) {
+  return when.promise((resolve, reject) => {
     var modulePath
     try {
       modulePath = require.resolve(options.module)

@@ -1,13 +1,13 @@
 require('./setup.js')
-var fs = require('fs')
-var path = require('path')
-var when = require('when')
+const fs = require('fs')
+const path = require('path')
+const when = require('when')
 
-var log = sinon.spy(function () {})
-var goggles = {
+const log = sinon.spy(function () {})
+const goggles = {
   getInfo: function () {}
 }
-var docker = {
+const docker = {
   build: function () {},
   pushTags: function () {},
   tagImage: function () {}
@@ -23,10 +23,10 @@ function releaseExit () {
   process.exit = ORIGINAL_EXIT
 }
 
-var dockerFactory = function () { return docker }
+const dockerFactory = function () { return docker }
 
-var settings = require('../src/settings')(goggles)
-var dockyard = require('../src/index')(log, goggles, dockerFactory, settings)
+const settings = require('../src/settings')(goggles)
+const dockyard = require('../src/index')(log, goggles, dockerFactory, settings)
 
 describe('Dockyard', function () {
   describe('build image', function () {
@@ -142,6 +142,116 @@ describe('Dockyard', function () {
         json.should.eql({
           image: imageName,
           tags: [ '1.1.1_10_a1b2c3d4' ]
+        })
+      })
+
+      it('should log writing image file success', function () {
+        log.should.have.been.calledWith(
+          "Image file written to '%s' successfully.",
+          imageFile
+        )
+      })
+
+      after(function () {
+        dockerMock.verify()
+        gogglesMock.verify()
+        fs.unlinkSync(path.resolve(imageFile))
+      })
+    })
+
+    describe('when building image with latest tag', function () {
+      var imageFile
+      var imageName
+      var gogglesMock
+      var dockerMock
+
+      before(function () {
+        imageFile = 'spec/.custom.json'
+        imageName = 'npm/npm-test'
+
+        dockerMock = sinon.mock(docker)
+        dockerMock
+          .expects('build')
+          .withArgs(imageName, './spec', 'Dockerfile.test')
+          .once()
+          .resolves({})
+
+        dockerMock
+          .expects('tagImage')
+          .withArgs(imageName)
+          .resolves({})
+
+        dockerMock
+          .expects('pushTags')
+          .withArgs(imageName)
+          .resolves()
+
+        gogglesMock = sinon.mock(goggles)
+        gogglesMock
+          .expects('getInfo')
+          .withArgs({ repo: './spec', tags: [ 'lt', 'v_c_s' ] })
+          .resolves({
+            tag: [ 'latest', '1.1.1_10_a1b2c3d4' ]
+          })
+          .once()
+
+        return dockyard.buildImage({
+          ltsOnly: true,
+          repo: 'npm',
+          name: 'test',
+          namePrefix: 'npm-',
+          workingPath: './spec',
+          dockerFile: './spec/Dockerfile.test',
+          tags: [ 'lt', 'v_c_s' ],
+          output: '.custom.json',
+          defaultInfo: {
+            isLTS: true
+          }
+        })
+      })
+
+      it('should log build start', function () {
+        log.should.have.been.calledWith(
+          "Building Docker image '%s'.",
+          imageName
+        )
+      })
+
+      it('should log build complete', function () {
+        log.should.have.been.calledWith(
+          "Docker image '%s' built successfully.",
+          imageName
+        )
+      })
+
+      it('should log tag started', function () {
+        log.should.have.been.calledWith('Tagging image.')
+      })
+
+      it('should log push started', function () {
+        log.should.have.been.calledWith('Pushing image.')
+      })
+
+      it('should log push success', function () {
+        log.should.have.been.calledWith(
+          "Docker image '%s' was pushed successfully with tags: %s",
+          imageName,
+          [ 'latest', '1.1.1_10_a1b2c3d4' ]
+        )
+      })
+
+      it('should log writing image file', function () {
+        log.should.have.been.calledWith(
+          "Writing image file to '%s'.",
+          imageFile
+        )
+      })
+
+      it('should write correct info to file', function () {
+        var json = JSON.parse(fs.readFileSync(imageFile, 'utf8'))
+        json.should.eql({
+          image: imageName,
+          tags: [ 'latest', '1.1.1_10_a1b2c3d4' ]
         })
       })
 
@@ -553,14 +663,15 @@ describe('Dockyard', function () {
         gogglesMock = sinon.mock(goggles)
         gogglesMock.expects('getInfo')
           .withArgs({ repo: './', tags: [ 't1' ] })
-          .resolves({ fake: true })
+          .resolves({ fake: true, tag: [ 't1' ] })
       })
 
       it('should resolve with info', function () {
         return dockyard.writeBuildInfo('./', 'test-image', [ 't1' ])
           .should.eventually.eql({
             continue: true,
-            fake: true
+            fake: true,
+            tag: [ 't1' ]
           })
       })
     })
