@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.2.4"></a>
+## [1.2.4](https://github.com/npm-wharf/dockyard/compare/v1.2.3...v1.2.4) (2017-11-12)
+
+
+### Bug Fixes
+
+* correct an issue that caused multiple tag specifications to parse incorrectly from the CLI ([44e75d9](https://github.com/npm-wharf/dockyard/commit/44e75d9))
+
+
+
 <a name="1.2.3"></a>
 ## [1.2.3](https://github.com/npm-wharf/dockyard/compare/v1.2.2...v1.2.3) (2017-11-12)
 

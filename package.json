@@ -1,6 +1,6 @@
 {
   "name": "dockyard",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "description": "artifact packaging for service builds",
   "main": "src/index.js",
   "bin": {
