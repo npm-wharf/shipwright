@@ -89,7 +89,6 @@ function build (info, settings) {
 function handle (dockyard, github, info, argv) {
   if (argv.tags && /[,]/.test(argv.tags)) {
     argv.tags = argv.tags.split(',')
-    console.log(argv.tags)
   }
   return dockyard.buildImage({
     repo: argv.repo,
