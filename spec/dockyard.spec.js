@@ -81,7 +81,7 @@ describe('Dockyard', function () {
           .expects('getInfo')
           .withArgs({ repo: './spec', tags: [ 'v_c_s' ] })
           .resolves({
-            tag: [ '1.1.1_10_a1b2c3d4' ]
+            tag: '1.1.1_10_a1b2c3d4'
           })
           .once()
 
@@ -126,7 +126,7 @@ describe('Dockyard', function () {
         log.should.have.been.calledWith(
           "Docker image '%s' was pushed successfully with tags: %s",
           imageName,
-          [ '1.1.1_10_a1b2c3d4' ]
+          '1.1.1_10_a1b2c3d4'
         )
       })
 
@@ -141,7 +141,7 @@ describe('Dockyard', function () {
         var json = JSON.parse(fs.readFileSync(imageFile, 'utf8'))
         json.should.eql({
           image: imageName,
-          tags: [ '1.1.1_10_a1b2c3d4' ]
+          tags: '1.1.1_10_a1b2c3d4'
         })
       })
 

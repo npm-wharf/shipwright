@@ -153,7 +153,7 @@ function writeBuildInfo (log, goggles, workingPath, imageName, tags, info) {
     return getBuildInfo(goggles, false, workingPath, tags)
       .then(
         newInfo => {
-          if (newInfo.tag && newInfo.tag.length) {
+          if (newInfo.tag && Array.isArray(newInfo.tag)) {
             newInfo.tag = newInfo.tag.reduce((acc, t) => {
               if (t && t.length > 0) {
                 acc.push(t)
