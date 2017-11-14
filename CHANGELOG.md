@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.2.5"></a>
+## [1.2.5](https://github.com/npm-wharf/dockyard/compare/v1.2.4...v1.2.5) (2017-11-14)
+
+
+### Bug Fixes
+
+* correct defect causing single tag builds to exit before tag and push ([928a272](https://github.com/npm-wharf/dockyard/commit/928a272))
+* remove console.log from command during tag parsing ([ae20aec](https://github.com/npm-wharf/dockyard/commit/ae20aec))
+
+
+
 <a name="1.2.4"></a>
 ## [1.2.4](https://github.com/npm-wharf/dockyard/compare/v1.2.3...v1.2.4) (2017-11-12)
 
