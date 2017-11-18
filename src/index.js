@@ -31,8 +31,6 @@ function buildImage (log, settings, goggles, dockerFactory, options) {
   const imageName = imageParts.join('/')
   const imageFile = path.join(workingPath, output)
 
-  console.log(options)
-
   if (options.cacheFromLatest) {
     cacheFrom = [imageName, 'latest'].join(':')
   } else if (options.cacheFrom) {
