@@ -1,6 +1,5 @@
 require('./setup.js')
 const path = require('path')
-const format = require('util').format
 const log = sinon.spy(function () {})
 const githubChangeFile = sinon.stub()
 const github = require('../src/github')(log, githubChangeFile)
@@ -11,8 +10,7 @@ describe('GitHub', function () {
       github.onGetOptionsFailed(new Error('ohnoes'))
     }).should.throw(Error, 'ohnoes')
     log.should.have.been.calledWith(
-      'Failed to get options for update with error: %s',
-      'ohnoes'
+      'Failed to get options for update with error: ohnoes'
     )
   })
 
@@ -21,8 +19,7 @@ describe('GitHub', function () {
       github.onLoadModuleFailed(new Error('oops'))
     }).should.throw(Error, 'oops')
     log.should.have.been.calledWith(
-      'Failed to load module due to error: %s',
-      'oops'
+      'Failed to load module due to error: oops'
     )
   })
 
@@ -60,11 +57,7 @@ describe('GitHub', function () {
 
       it('should log PR creation', function () {
         log.should.have.been.calledWith(
-          "Creating pull request to '%s/%s:%s' to change file '%s'",
-          'user',
-          'test',
-          'master',
-          'package.json'
+          "Creating pull request to 'user/test:master' to change file 'package.json'"
         )
       })
 
@@ -123,11 +116,7 @@ describe('GitHub', function () {
 
       it('should log PR creation', function () {
         log.should.have.been.calledWith(
-          "Creating pull request to '%s/%s:%s' to change file '%s'",
-          'user',
-          'test',
-          'master',
-          'package.json'
+          "Creating pull request to 'user/test:master' to change file 'package.json'"
         )
       })
 
@@ -162,10 +151,8 @@ describe('GitHub', function () {
       return github.getOptions('./test')
         .should.be.rejectedWith(
           Error,
-          format(
-            "Invalid change file path specified '%s'",
-            path.resolve('./test')
-          ))
+          `Invalid change file path specified '${path.resolve('./test')}'`
+        )
     })
 
     it('should load valid json', function () {
@@ -216,11 +203,8 @@ describe('GitHub', function () {
     it('should fail to load invalid extention', function () {
       return github.getOptions('./spec/plugins/nope.txt')
         .should.be.rejectedWith(Error,
-          format(
-            "Unknown change file extension specified - '%s' in '%s'",
-            '.txt',
-            path.resolve('./spec/plugins/nope.txt')
-          ))
+          `Unknown change file extension specified - '.txt' in '${path.resolve('./spec/plugins/nope.txt')}'`
+        )
     })
   })
 
@@ -251,8 +235,7 @@ describe('GitHub', function () {
 
       it('should log loading module', function () {
         log.should.be.calledWith(
-          "Loading PR transform module from '%s'",
-          require.resolve('../spec/plugins/example')
+          `Loading PR transform module from '${require.resolve('../spec/plugins/example')}'`
         )
       })
     })
@@ -280,27 +263,22 @@ describe('GitHub', function () {
           branch: 'master',
           version: '1.0.0'
         },
-          './spec/plugins/example.json'
-        )
-        .then(function (x) {
-          result = x
-        })
+        './spec/plugins/example.json'
+      )
+      .then(function (x) {
+        result = x
+      })
     })
 
     it('should log loading module', function () {
       log.should.be.calledWith(
-          "Loading PR transform module from '%s'",
-          require.resolve('../spec/plugins/example')
-        )
+        `Loading PR transform module from '${require.resolve('../spec/plugins/example')}'`
+      )
     })
 
     it('should log PR creation', function () {
       log.should.have.been.calledWith(
-        "Creating pull request to '%s/%s:%s' to change file '%s'",
-        'npm',
-        'dockyard',
-        'master',
-        './package.json'
+        `Creating pull request to 'npm/dockyard:master' to change file './package.json'`
       )
     })
 

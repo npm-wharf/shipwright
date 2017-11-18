@@ -6,12 +6,7 @@ const when = require('when')
 
 function createPR (log, githubChangeFile, buildInfo, options) {
   return when.promise((resolve, reject) => {
-    log("Creating pull request to '%s/%s:%s' to change file '%s'",
-      options.source.owner,
-      options.source.repo,
-      options.source.branch || 'master',
-      options.source.file
-    )
+    log(`Creating pull request to '${options.source.owner}/${options.source.repo}:${options.source.branch || 'master'}' to change file '${options.source.file}'`)
     githubChangeFile({
       user: options.source.owner,
       repo: options.source.repo,
@@ -29,13 +24,7 @@ function createPR (log, githubChangeFile, buildInfo, options) {
     .catch(
       error => {
         reject(new Error(
-          format("Failed to create PR to '%s/%s:%s' to update file '%s' due to error: %s",
-            options.source.owner,
-            options.source.repo,
-            options.source.branch,
-            options.source.file,
-            error.message
-          )
+          `Failed to create PR to '${options.source.owner}/${options.source.repo}:${options.source.branch}' to update file '${options.source.file}' due to error: ${error.message}`
         ))
       }
     )
@@ -46,10 +35,10 @@ function getOptions (log, changeFile) {
   const fullPath = path.resolve(changeFile)
   return when.promise((resolve, reject) => {
     if (!fs.existsSync(fullPath)) {
-      reject(new Error(format("Invalid change file path specified '%s'", fullPath)))
+      reject(new Error(`Invalid change file path specified '${fullPath}'`))
     } else {
       const ext = path.extname(changeFile)
-      log("Reading PR option file '%s'.", fullPath)
+      log(`Reading PR option file '${fullPath}'.`)
       try {
         const content = fs.readFileSync(fullPath, 'utf8')
         let options
@@ -58,11 +47,11 @@ function getOptions (log, changeFile) {
         } else if (/[.]ya?ml/.test(ext)) {
           options = yaml.load(content)
         } else {
-          reject(new Error(format("Unknown change file extension specified - '%s' in '%s'", ext, fullPath)))
+          reject(new Error(`Unknown change file extension specified - '${ext}' in '${fullPath}'`))
         }
         resolve(options)
       } catch (ex) {
-        reject(new Error(format("Error deserializing change file '%s': %s", fullPath, ex.message)))
+        reject(new Error(`Error deserializing change file '${fullPath}': ${ex.message}`))
       }
     }
   })
@@ -76,27 +65,25 @@ function loadModule (log, buildInfo, options) {
     } catch (e) {
       reject(e)
     }
-    log("Loading PR transform module from '%s'", modulePath)
+    log(`Loading PR transform module from '${modulePath}'`)
     try {
       options.transform = require(options.module)(buildInfo, options.args)
       resolve(options)
     } catch (ex) {
-      reject(new Error(format(
-        "Failed to load PR module '%s' due to error: %s",
-        options.module,
-        ex.message
-      )))
+      reject(new Error(
+        `Failed to load PR module '${options.module}' due to error: ${ex.message}`
+      ))
     }
   })
 }
 
 function onGetOptionsFailed (log, error) {
-  log('Failed to get options for update with error: %s', error.message)
+  log(`Failed to get options for update with error: ${error.message}`)
   throw error
 }
 
 function onLoadModuleFailed (log, error) {
-  log('Failed to load module due to error: %s', error.message)
+  log(`Failed to load module due to error: ${error.message}`)
   throw error
 }
 

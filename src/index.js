@@ -21,6 +21,7 @@ function buildImage (log, settings, goggles, dockerFactory, options) {
   const noPush = options.noPush || false
   const defaultInfo = options.defaultInfo
   const docker = dockerFactory(options.sudo || false, dockerLog)
+  let cacheFrom
 
   const baseImage = [ namePrefix, name, namePostfix ].join('')
   const imageParts = [ repo, baseImage ]
@@ -30,21 +31,42 @@ function buildImage (log, settings, goggles, dockerFactory, options) {
   const imageName = imageParts.join('/')
   const imageFile = path.join(workingPath, output)
 
+  console.log(options)
+
+  if (options.cacheFromLatest) {
+    cacheFrom = [imageName, 'latest'].join(':')
+  } else if (options.cacheFrom) {
+    cacheFrom = options.cacheFrom
+  }
+
+  const argSet = {
+    docker,
+    log,
+    imageName,
+    workingPath,
+    dockerFile,
+    cacheFrom
+  }
+
   if (ltsOnly && !defaultInfo.isLTS) {
-    log('Skipping build - Node version (%s) is not LTS', process.version)
+    log(`Skipping build - Node version (${process.version}) is not LTS`)
     return when({})
   }
 
   var info
-  log("Building Docker image '%s'.", imageName)
-  return docker.build(imageName, workingPath, path.relative(workingPath, dockerFile))
+  log(`Building Docker image '${imageName}'.`)
+  if (cacheFrom) {
+    log(`Attempting to cache build from '${cacheFrom}'.`)
+  }
+  return docker.build(imageName, workingPath, path.relative(workingPath, dockerFile), cacheFrom)
     .then(
       () => {
-        log("Docker image '%s' built successfully.", imageName)
+        log(`Docker image '${imageName}' built successfully.`)
+        return true
       },
-      onBuildFailed.bind(null, log, imageName)
+      onBuildFailed.bind(null, log, imageName, argSet)
     )
-    .catch(exitOnError)
+    .catch(exitOrRetry)
     .then(
       writeBuildInfo.bind(null, log, goggles, workingPath, imageName, tagSpecs, defaultInfo)
     )
@@ -87,6 +109,14 @@ function exitOnError () {
   process.exit(100)
 }
 
+function exitOrRetry (error) {
+  if (error.retry) {
+    return retryBuild(error.argSet)
+  } else {
+    process.exit(100)
+  }
+}
+
 function getBuildInfo (goggles, unlink, workingPath, tags) {
   return goggles.getInfo({ repo: workingPath, tags: tags })
     .then(
@@ -99,23 +129,31 @@ function getBuildInfo (goggles, unlink, workingPath, tags) {
     )
 }
 
-function onBuildFailed (log, imageName, buildError) {
-  log("Docker build for image '%s' failed: %s", imageName, buildError.message)
-  throw buildError
+function onBuildFailed (log, imageName, argSet, buildError) {
+  if (argSet.cacheFrom) {
+    log(`Docker build failed with cache-from set to '${argSet.cacheFrom}', retrying build without cache argument`)
+    const retryError = new Error('')
+    retryError.retry = true
+    retryError.argSet = argSet
+    throw retryError
+  } else {
+    log(`Docker build for image '${imageName}' failed: ${buildError.message}`)
+    throw buildError
+  }
 }
 
 function onPushFailed (log, imageName, pushError) {
-  log("Pushing the image '%s' failed for some or all tags:\n %s", imageName, pushError.message)
+  log(`Pushing the image '${imageName}' failed for some or all tags:\n ${pushError.message}`)
   throw pushError
 }
 
 function onTagFailed (log, imageName, info, tagError) {
-  log("Tagging image '%s' with tags, '%s', failed with error:\n %s", imageName, info.tag, tagError)
+  log(`Tagging image '${imageName}' with tags, '${info.tag.join(', ')}', failed with error:\n ${tagError.message}`)
   throw tagError
 }
 
 function onWriteInfoFailed (log, writeError) {
-  log('Failed to acquire and write build information due to error: %s', writeError)
+  log(`Failed to acquire and write build information due to error: ${writeError}`)
   throw writeError
 }
 
@@ -128,11 +166,28 @@ function pushImage (log, docker, noPush, imageName, info) {
     return docker.pushTags(imageName)
       .then(
         () => {
-          log("Docker image '%s' was pushed successfully with tags: %s", imageName, info.tag)
+          log(`Docker image '${imageName}' was pushed successfully with tags: ${Array.isArray(info.tag) ? info.tag.join(', ') : info.tag}`)
           return info
         }
       )
   }
+}
+
+function retryBuild (argSet) {
+  const docker = argSet.docker
+  const log = argSet.log
+  const imageName = argSet.imageName
+  const workingPath = argSet.workingPath
+  const dockerFile = argSet.dockerFile
+  delete argSet.cacheFrom
+  log(`Building Docker image '${imageName}'.`)
+  return docker.build(imageName, workingPath, path.relative(workingPath, dockerFile))
+  .then(
+    () => {
+      log(`Docker image '${imageName}' built successfully.`)
+    },
+    onBuildFailed.bind(null, log, imageName, argSet)
+  )
 }
 
 function tagImage (log, docker, skipPRs, imageName, info) {
@@ -173,11 +228,7 @@ function writeBuildInfo (log, goggles, workingPath, imageName, tags, info) {
       )
   } else {
     log('No tags were specified, skipping tag and push.')
-    log('branch - %s, PR - %s, tagged - %s',
-      info.branch,
-      info.ci.pullRequest,
-      info.ci.tagged
-    )
+    log(`branch - ${info.branch}, PR - ${info.ci.pullRequest}, tagged - ${info.ci.tagged}`)
     return when({ continue: false })
   }
 }
@@ -187,7 +238,7 @@ function writeImageFile (log, imageFile, imageName, info) {
     log('Skipping write of image file information.')
     return when(info)
   } else {
-    log("Writing image file to '%s'.", imageFile)
+    log(`Writing image file to '${imageFile}'.`)
     info.imageName = imageName
     return when.promise((resolve, reject) => {
       const json = JSON.stringify({
@@ -196,10 +247,10 @@ function writeImageFile (log, imageFile, imageName, info) {
       })
       fs.writeFile(imageFile, json, 'utf8', err => {
         if (err) {
-          log("Failed to write image file to '%s' with error: %s", imageFile, err)
+          log(`Failed to write image file to '${imageFile}' with error: ${err.message}`)
           reject(err)
         } else {
-          log("Image file written to '%s' successfully.", imageFile)
+          log(`Image file written to '${imageFile}' successfully.`)
           resolve(info)
         }
       })

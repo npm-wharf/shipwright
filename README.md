@@ -37,7 +37,9 @@ Builds a docker image with all default options. Read carefully, there are kindov
   * --sudo - defaults to `true`: use sudo with Docker commands
   * --verbose - defaults to `false`: include Docker build output in console logs
   * --always-build - always produce a build regardless of the branch by providing the default tag specification `[ 'b_v_c_s' ]` if no other tags have been specified
-  * --build-branches - defaults to `[ 'staging', 'qa', 'dev' ]`: a list of branches to build for (other than master) with the default tag specification `[ 'b_v_c_s' ]` if no other tags have been specified. 
+  * --build-branches - defaults to `[ 'staging', 'qa', 'dev' ]`: a list of branches to build for (other than master) with the default tag specification `[ 'b_v_c_s' ]` if no other tags have been specified.
+  * --cache-from-latest - will cause dockyard to add a `--cache-from` argument to Docker with the current image name and the `latest` tag.
+  * --cache-from - will cause dockyard to pass the argument on to docker's `--cache-from`
 
 ### Use cases for `--always-build` and `--build-branches`
 
@@ -86,6 +88,20 @@ Even without adding flags, you can still get a build on any branch with the tag 
 #### For PRs and Builds On Non-LTS Versions of Node
 
 Dockyard won't do _anything_ at all. This is to avoid drawing out the build times on your CI server. You can change these behaviors with the `skip-prs` and `lts-only` flags, of course, but this is about default build behavior.
+
+### Caching Support
+
+Dockyard has three different caching support options you can use to populate Docker's `--cache-from` argument.
+
+In the event that any of these flags result in an error from the Docker CLI, Dockyard will fall back to making the command without the `--cache-from` argument. If your build is not getting faster, check your log output and make sure that the image it's trying to cache from actually exists in the target Docker repository.
+ 
+#### `cache-from-latest`
+
+This flag will append the `latest` tag to your current image and attempt to use that to populate Docker's `--cache-from` argument.
+
+#### `cache-from`
+
+This argument allows you to provide your own full specification to Dockyard that it will then pass through to Docker.
 
 ## `updateWith` - Instruction Files & PR Plugins
 The `updateWith` argument is way to plug in your own transformers after the fact to get dockyard to send a PR to another GitHub repository in order to update a single file.

@@ -72,6 +72,15 @@ function build (info, settings) {
     'update-with': {
       describe: "specify an instruction file for how to send a PR to update another GitHub repository's file"
     },
+    'cache-from': {
+      describe: 'attempt to cache from a specific image',
+      type: 'string'
+    },
+    'cache-from-latest': {
+      describe: "attempt to cache from previously built image tagged as 'latest'",
+      type: 'boolean',
+      default: false
+    },
     sudo: {
       describe: 'indicates sudo should be used with docker commands',
       default: false,
@@ -99,6 +108,8 @@ function handle (dockyard, github, info, argv) {
     namePostfix: argv[ 'name-Postfix' ],
     alwaysBuild: argv[ 'always-build' ],
     buildBranches: argv[ 'build-branches' ],
+    cacheFromLatest: argv[ 'cache-from-latest' ],
+    cacheFrom: argv[ 'cache-from' ],
     tags: argv.tags,
     registry: argv.registry,
     output: argv.output,

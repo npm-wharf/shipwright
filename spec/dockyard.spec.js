@@ -43,8 +43,7 @@ describe('Dockyard', function () {
 
       it('should log skipping build', function () {
         log.should.have.been.calledWith(
-          'Skipping build - Node version (%s) is not LTS',
-          process.version
+          `Skipping build - Node version (${process.version}) is not LTS`
         )
       })
     })
@@ -102,15 +101,13 @@ describe('Dockyard', function () {
 
       it('should log build start', function () {
         log.should.have.been.calledWith(
-          "Building Docker image '%s'.",
-          imageName
+          `Building Docker image '${imageName}'.`
         )
       })
 
       it('should log build complete', function () {
         log.should.have.been.calledWith(
-          "Docker image '%s' built successfully.",
-          imageName
+          `Docker image '${imageName}' built successfully.`
         )
       })
 
@@ -124,16 +121,13 @@ describe('Dockyard', function () {
 
       it('should log push success', function () {
         log.should.have.been.calledWith(
-          "Docker image '%s' was pushed successfully with tags: %s",
-          imageName,
-          '1.1.1_10_a1b2c3d4'
+          `Docker image '${imageName}' was pushed successfully with tags: 1.1.1_10_a1b2c3d4`
         )
       })
 
       it('should log writing image file', function () {
         log.should.have.been.calledWith(
-          "Writing image file to '%s'.",
-          imageFile
+          `Writing image file to '${imageFile}'.`
         )
       })
 
@@ -147,8 +141,7 @@ describe('Dockyard', function () {
 
       it('should log writing image file success', function () {
         log.should.have.been.calledWith(
-          "Image file written to '%s' successfully.",
-          imageFile
+          `Image file written to '${imageFile}' successfully.`
         )
       })
 
@@ -212,15 +205,13 @@ describe('Dockyard', function () {
 
       it('should log build start', function () {
         log.should.have.been.calledWith(
-          "Building Docker image '%s'.",
-          imageName
+          `Building Docker image '${imageName}'.`
         )
       })
 
       it('should log build complete', function () {
         log.should.have.been.calledWith(
-          "Docker image '%s' built successfully.",
-          imageName
+          `Docker image '${imageName}' built successfully.`
         )
       })
 
@@ -234,16 +225,13 @@ describe('Dockyard', function () {
 
       it('should log push success', function () {
         log.should.have.been.calledWith(
-          "Docker image '%s' was pushed successfully with tags: %s",
-          imageName,
-          [ 'latest', '1.1.1_10_a1b2c3d4' ]
+          `Docker image '${imageName}' was pushed successfully with tags: latest, 1.1.1_10_a1b2c3d4`
         )
       })
 
       it('should log writing image file', function () {
         log.should.have.been.calledWith(
-          "Writing image file to '%s'.",
-          imageFile
+          `Writing image file to '${imageFile}'.`
         )
       })
 
@@ -257,8 +245,7 @@ describe('Dockyard', function () {
 
       it('should log writing image file success', function () {
         log.should.have.been.calledWith(
-          "Image file written to '%s' successfully.",
-          imageFile
+          `Image file written to '${imageFile}' successfully.`
         )
       })
 
@@ -326,15 +313,13 @@ describe('Dockyard', function () {
 
       it('should log build start', function () {
         log.should.have.been.calledWith(
-          "Building Docker image '%s'.",
-          imageName
+          `Building Docker image '${imageName}'.`
         )
       })
 
       it('should log build complete', function () {
         log.should.have.been.calledWith(
-          "Docker image '%s' built successfully.",
-          imageName
+          `Docker image '${imageName}' built successfully.`
         )
       })
 
@@ -348,16 +333,13 @@ describe('Dockyard', function () {
 
       it('should log push success', function () {
         log.should.have.been.calledWith(
-          "Docker image '%s' was pushed successfully with tags: %s",
-          imageName,
-          [ 'my-branch_1.1.1_10_a1b2c3d4' ]
+          `Docker image '${imageName}' was pushed successfully with tags: my-branch_1.1.1_10_a1b2c3d4`
         )
       })
 
       it('should log writing image file', function () {
         log.should.have.been.calledWith(
-          "Writing image file to '%s'.",
-          imageFile
+          `Writing image file to '${imageFile}'.`
         )
       })
 
@@ -371,8 +353,7 @@ describe('Dockyard', function () {
 
       it('should log writing image file success', function () {
         log.should.have.been.calledWith(
-          "Image file written to '%s' successfully.",
-          imageFile
+          `Image file written to '${imageFile}' successfully.`
         )
       })
 
@@ -380,6 +361,357 @@ describe('Dockyard', function () {
         dockerMock.verify()
         gogglesMock.verify()
         releaseExit()
+        fs.unlinkSync(path.resolve(imageFile))
+      })
+    })
+
+    describe('when building image with cache-from-latest', function () {
+      var imageFile
+      var imageName
+      var gogglesMock
+      var dockerMock
+
+      before(function () {
+        imageFile = 'spec/.custom.json'
+        imageName = 'npm/npm-test'
+
+        dockerMock = sinon.mock(docker)
+        dockerMock
+          .expects('build')
+          .withArgs(imageName, './spec', 'Dockerfile.test', 'npm/npm-test:latest')
+          .once()
+          .resolves({})
+
+        dockerMock
+          .expects('tagImage')
+          .withArgs(imageName)
+          .resolves({})
+
+        dockerMock
+          .expects('pushTags')
+          .withArgs(imageName)
+          .resolves()
+
+        gogglesMock = sinon.mock(goggles)
+        gogglesMock
+          .expects('getInfo')
+          .withArgs({ repo: './spec', tags: [ 'lt', 'v_c_s' ] })
+          .resolves({
+            tag: [ 'latest', '1.1.1_10_a1b2c3d4' ]
+          })
+          .once()
+
+        return dockyard.buildImage({
+          ltsOnly: true,
+          repo: 'npm',
+          name: 'test',
+          namePrefix: 'npm-',
+          workingPath: './spec',
+          dockerFile: './spec/Dockerfile.test',
+          tags: [ 'lt', 'v_c_s' ],
+          output: '.custom.json',
+          cacheFromLatest: true,
+          defaultInfo: {
+            isLTS: true
+          }
+        })
+      })
+
+      it('should log build start', function () {
+        log.should.have.been.calledWith(
+          `Building Docker image '${imageName}'.`
+        )
+      })
+
+      it('should log caching source', function () {
+        log.should.have.been.calledWith(
+          `Attempting to cache build from 'npm/npm-test:latest'.`
+        )
+      })
+
+      it('should log build complete', function () {
+        log.should.have.been.calledWith(
+          `Docker image '${imageName}' built successfully.`
+        )
+      })
+
+      it('should log tag started', function () {
+        log.should.have.been.calledWith('Tagging image.')
+      })
+
+      it('should log push started', function () {
+        log.should.have.been.calledWith('Pushing image.')
+      })
+
+      it('should log push success', function () {
+        log.should.have.been.calledWith(
+          `Docker image '${imageName}' was pushed successfully with tags: latest, 1.1.1_10_a1b2c3d4`
+        )
+      })
+
+      it('should log writing image file', function () {
+        log.should.have.been.calledWith(
+          `Writing image file to '${imageFile}'.`
+        )
+      })
+
+      it('should write correct info to file', function () {
+        var json = JSON.parse(fs.readFileSync(imageFile, 'utf8'))
+        json.should.eql({
+          image: imageName,
+          tags: [ 'latest', '1.1.1_10_a1b2c3d4' ]
+        })
+      })
+
+      it('should log writing image file success', function () {
+        log.should.have.been.calledWith(
+          `Image file written to '${imageFile}' successfully.`
+        )
+      })
+
+      after(function () {
+        dockerMock.verify()
+        gogglesMock.verify()
+        fs.unlinkSync(path.resolve(imageFile))
+      })
+    })
+
+    describe('when building image with cache-from', function () {
+      var imageFile
+      var imageName
+      var gogglesMock
+      var dockerMock
+
+      before(function () {
+        imageFile = 'spec/.custom.json'
+        imageName = 'npm/npm-test'
+
+        dockerMock = sinon.mock(docker)
+        dockerMock
+          .expects('build')
+          .withArgs(imageName, './spec', 'Dockerfile.test', 'npm/npm-test:1.0.0')
+          .once()
+          .resolves({})
+
+        dockerMock
+          .expects('tagImage')
+          .withArgs(imageName)
+          .resolves({})
+
+        dockerMock
+          .expects('pushTags')
+          .withArgs(imageName)
+          .resolves()
+
+        gogglesMock = sinon.mock(goggles)
+        gogglesMock
+          .expects('getInfo')
+          .withArgs({ repo: './spec', tags: [ 'lt', 'v_c_s' ] })
+          .resolves({
+            tag: [ 'latest', '1.1.1_10_a1b2c3d4' ]
+          })
+          .once()
+
+        return dockyard.buildImage({
+          ltsOnly: true,
+          repo: 'npm',
+          name: 'test',
+          namePrefix: 'npm-',
+          workingPath: './spec',
+          dockerFile: './spec/Dockerfile.test',
+          tags: [ 'lt', 'v_c_s' ],
+          output: '.custom.json',
+          cacheFrom: 'npm/npm-test:1.0.0',
+          defaultInfo: {
+            isLTS: true
+          }
+        })
+      })
+
+      it('should log build start', function () {
+        log.should.have.been.calledWith(
+          `Building Docker image '${imageName}'.`
+        )
+      })
+
+      it('should log caching source', function () {
+        log.should.have.been.calledWith(
+          `Attempting to cache build from 'npm/npm-test:1.0.0'.`
+        )
+      })
+
+      it('should log build complete', function () {
+        log.should.have.been.calledWith(
+          `Docker image '${imageName}' built successfully.`
+        )
+      })
+
+      it('should log tag started', function () {
+        log.should.have.been.calledWith('Tagging image.')
+      })
+
+      it('should log push started', function () {
+        log.should.have.been.calledWith('Pushing image.')
+      })
+
+      it('should log push success', function () {
+        log.should.have.been.calledWith(
+          `Docker image '${imageName}' was pushed successfully with tags: latest, 1.1.1_10_a1b2c3d4`
+        )
+      })
+
+      it('should log writing image file', function () {
+        log.should.have.been.calledWith(
+          `Writing image file to '${imageFile}'.`
+        )
+      })
+
+      it('should write correct info to file', function () {
+        var json = JSON.parse(fs.readFileSync(imageFile, 'utf8'))
+        json.should.eql({
+          image: imageName,
+          tags: [ 'latest', '1.1.1_10_a1b2c3d4' ]
+        })
+      })
+
+      it('should log writing image file success', function () {
+        log.should.have.been.calledWith(
+          `Image file written to '${imageFile}' successfully.`
+        )
+      })
+
+      after(function () {
+        dockerMock.verify()
+        gogglesMock.verify()
+        fs.unlinkSync(path.resolve(imageFile))
+      })
+    })
+
+    describe('when building image with invalid cache source', function () {
+      var imageFile
+      var imageName
+      var gogglesMock
+      var dockerMock
+
+      before(function () {
+        imageFile = 'spec/.custom.json'
+        imageName = 'npm/npm-test'
+
+        dockerMock = sinon.mock(docker)
+        dockerMock
+          .expects('build')
+          .withArgs(imageName, './spec', 'Dockerfile.test', 'npm/npm-test:1.0.0')
+          .once()
+          .rejects(new Error('no such thing'))
+
+        dockerMock
+          .expects('build')
+          .withArgs(imageName, './spec', 'Dockerfile.test')
+          .once()
+          .resolves({})
+
+        dockerMock
+          .expects('tagImage')
+          .withArgs(imageName)
+          .resolves({})
+
+        dockerMock
+          .expects('pushTags')
+          .withArgs(imageName)
+          .resolves()
+
+        gogglesMock = sinon.mock(goggles)
+        gogglesMock
+          .expects('getInfo')
+          .withArgs({ repo: './spec', tags: [ 'lt', 'v_c_s' ] })
+          .resolves({
+            tag: [ 'latest', '1.1.1_10_a1b2c3d4' ]
+          })
+          .once()
+
+        return dockyard.buildImage({
+          ltsOnly: true,
+          repo: 'npm',
+          name: 'test',
+          namePrefix: 'npm-',
+          workingPath: './spec',
+          dockerFile: './spec/Dockerfile.test',
+          tags: [ 'lt', 'v_c_s' ],
+          output: '.custom.json',
+          cacheFrom: 'npm/npm-test:1.0.0',
+          defaultInfo: {
+            isLTS: true
+          }
+        })
+      })
+
+      it('should log build start', function () {
+        log.should.have.been.calledWith(
+          `Building Docker image '${imageName}'.`
+        )
+      })
+
+      it('should log caching source', function () {
+        log.should.have.been.calledWith(
+          `Attempting to cache build from 'npm/npm-test:1.0.0'.`
+        )
+      })
+
+      it('should log build failure from bad tag', function () {
+        log.should.have.been.calledWith(
+          `Docker build failed with cache-from set to 'npm/npm-test:1.0.0', retrying build without cache argument`
+        )
+      })
+
+      it('should log build start (again)', function () {
+        log.should.have.been.calledWith(
+          `Building Docker image '${imageName}'.`
+        )
+      })
+
+      it('should log build complete', function () {
+        log.should.have.been.calledWith(
+          `Docker image '${imageName}' built successfully.`
+        )
+      })
+
+      it('should log tag started', function () {
+        log.should.have.been.calledWith('Tagging image.')
+      })
+
+      it('should log push started', function () {
+        log.should.have.been.calledWith('Pushing image.')
+      })
+
+      it('should log push success', function () {
+        log.should.have.been.calledWith(
+          `Docker image '${imageName}' was pushed successfully with tags: latest, 1.1.1_10_a1b2c3d4`
+        )
+      })
+
+      it('should log writing image file', function () {
+        log.should.have.been.calledWith(
+          `Writing image file to '${imageFile}'.`
+        )
+      })
+
+      it('should write correct info to file', function () {
+        var json = JSON.parse(fs.readFileSync(imageFile, 'utf8'))
+        json.should.eql({
+          image: imageName,
+          tags: [ 'latest', '1.1.1_10_a1b2c3d4' ]
+        })
+      })
+
+      it('should log writing image file success', function () {
+        log.should.have.been.calledWith(
+          `Image file written to '${imageFile}' successfully.`
+        )
+      })
+
+      after(function () {
+        dockerMock.verify()
+        gogglesMock.verify()
         fs.unlinkSync(path.resolve(imageFile))
       })
     })
@@ -411,9 +743,9 @@ describe('Dockyard', function () {
     it('should log build failure', function () {
       var failure = new Error('fail')
       expect(function () {
-        dockyard.onBuildFailed('test', failure)
+        dockyard.onBuildFailed('test', {}, failure)
       }).to.throw(failure)
-      log.should.have.been.calledWith("Docker build for image '%s' failed: %s", 'test', 'fail')
+      log.should.have.been.calledWith(`Docker build for image 'test' failed: ${failure.message}`)
     })
 
     it('should log push failure', function () {
@@ -422,9 +754,7 @@ describe('Dockyard', function () {
         dockyard.onPushFailed('test', failure)
       }).to.throw(failure)
       log.should.have.been.calledWith(
-        "Pushing the image '%s' failed for some or all tags:\n %s",
-        'test',
-        failure.message
+        `Pushing the image 'test' failed for some or all tags:\n ${failure.message}`
       )
     })
 
@@ -434,10 +764,7 @@ describe('Dockyard', function () {
         dockyard.onTagFailed('test', { tag: [ 't1', 't2' ] }, failure)
       }).to.throw(failure)
       log.should.have.been.calledWith(
-        "Tagging image '%s' with tags, '%s', failed with error:\n %s",
-        'test',
-        [ 't1', 't2' ],
-        failure
+        `Tagging image 'test' with tags, 't1, t2', failed with error:\n fail`
       )
     })
 
@@ -447,8 +774,7 @@ describe('Dockyard', function () {
         dockyard.onWriteInfoFailed(failure)
       }).to.throw(failure)
       log.should.have.been.calledWith(
-        'Failed to acquire and write build information due to error: %s',
-        failure
+        `Failed to acquire and write build information due to error: ${failure}`
       )
     })
   })
@@ -533,9 +859,7 @@ describe('Dockyard', function () {
 
       it('should log success', function () {
         log.should.have.been.calledWith(
-          "Docker image '%s' was pushed successfully with tags: %s",
-          'test-image',
-          't1'
+          `Docker image 'test-image' was pushed successfully with tags: t1`
         )
       })
 
@@ -645,10 +969,7 @@ describe('Dockyard', function () {
       it('should log no tags', function () {
         log.should.have.been.calledWith('No tags were specified, skipping tag and push.')
         log.should.have.been.calledWith(
-          'branch - %s, PR - %s, tagged - %s',
-          'master',
-          false,
-          false
+          'branch - master, PR - false, tagged - false'
         )
       })
 
@@ -673,6 +994,33 @@ describe('Dockyard', function () {
             fake: true,
             tag: [ 't1' ]
           })
+      })
+
+      it('should call build goggles', function () {
+        gogglesMock.verify()
+      })
+    })
+
+    describe('when getting build info with no valid tags', function () {
+      var gogglesMock
+      before(function () {
+        gogglesMock = sinon.mock(goggles)
+        gogglesMock.expects('getInfo')
+          .withArgs({ repo: './', tags: [ 't1' ] })
+          .resolves({ fake: true, tag: [] })
+      })
+
+      it('should resolve with info and continue flagged as false', function () {
+        return dockyard.writeBuildInfo('./', 'test-image', [ 't1' ])
+          .should.eventually.eql({
+            continue: false,
+            fake: true,
+            tag: []
+          })
+      })
+
+      it('should call build goggles', function () {
+        gogglesMock.verify()
       })
     })
   })
@@ -701,14 +1049,12 @@ describe('Dockyard', function () {
       })
 
       it('should log writing', function () {
-        log.should.have.been.calledWith("Writing image file to '%s'.", './blorp/mcnope.json')
+        log.should.have.been.calledWith(`Writing image file to './blorp/mcnope.json'.`)
       })
 
       it('should log error', function () {
         log.should.have.been.calledWith(
-          "Failed to write image file to '%s' with error: %s",
-          './blorp/mcnope.json',
-          sinon.match.has('message', "ENOENT: no such file or directory, open './blorp/mcnope.json'")
+          `Failed to write image file to './blorp/mcnope.json' with error: ENOENT: no such file or directory, open './blorp/mcnope.json'`
         )
       })
     })
@@ -735,13 +1081,12 @@ describe('Dockyard', function () {
       })
 
       it('should log writing', function () {
-        log.should.have.been.calledWith("Writing image file to '%s'.", imageFile)
+        log.should.have.been.calledWith(`Writing image file to '${imageFile}'.`)
       })
 
       it('should log success', function () {
         log.should.have.been.calledWith(
-          "Image file written to '%s' successfully.",
-          imageFile
+          `Image file written to '${imageFile}' successfully.`
         )
       })
 
