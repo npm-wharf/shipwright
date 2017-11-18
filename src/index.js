@@ -20,6 +20,7 @@ function buildImage (log, settings, goggles, dockerFactory, options) {
   const ltsOnly = options.ltsOnly
   const noPush = options.noPush || false
   const defaultInfo = options.defaultInfo
+  const indicateProgress = options.indicateProgress
   const docker = dockerFactory(options.sudo || false, dockerLog)
   let cacheFrom
 
@@ -51,6 +52,13 @@ function buildImage (log, settings, goggles, dockerFactory, options) {
     return when({})
   }
 
+  let progress
+  if (indicateProgress) {
+    progress = setInterval(() => {
+      process.stdout.write('.')
+    }, 3000)
+  }
+
   var info
   log(`Building Docker image '${imageName}'.`)
   if (cacheFrom) {
@@ -64,7 +72,12 @@ function buildImage (log, settings, goggles, dockerFactory, options) {
       },
       onBuildFailed.bind(null, log, imageName, argSet)
     )
-    .catch(exitOrRetry)
+    .catch(exitOrRetry.bind(null, progress))
+    .then(() => {
+      if (progress) {
+        clearInterval(progress)
+      }
+    })
     .then(
       writeBuildInfo.bind(null, log, goggles, workingPath, imageName, tagSpecs, defaultInfo)
     )
@@ -107,10 +120,13 @@ function exitOnError () {
   process.exit(100)
 }
 
-function exitOrRetry (error) {
+function exitOrRetry (progress, error) {
   if (error.retry) {
     return retryBuild(error.argSet)
   } else {
+    if (progress) {
+      clearInterval(progress)
+    }
     process.exit(100)
   }
 }

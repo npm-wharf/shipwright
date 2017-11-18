@@ -90,6 +90,11 @@ function build (info, settings) {
       describe: 'includes docker build output',
       default: false,
       type: 'boolean'
+    },
+    'indicate-progress': {
+      describe: 'indicates progress with periodic dots for CI systems that will exit without regular output',
+      default: false,
+      type: 'boolean'
     }
   }
   return set
@@ -110,6 +115,7 @@ function handle (dockyard, github, info, argv) {
     buildBranches: argv[ 'build-branches' ],
     cacheFromLatest: argv[ 'cache-from-latest' ],
     cacheFrom: argv[ 'cache-from' ],
+    indicateProgress: argv[ 'indicate-progress' ],
     tags: argv.tags,
     registry: argv.registry,
     output: argv.output,
