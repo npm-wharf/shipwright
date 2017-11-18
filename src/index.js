@@ -23,6 +23,7 @@ function buildImage (log, settings, goggles, dockerFactory, options) {
   const indicateProgress = options.indicateProgress
   const docker = dockerFactory(options.sudo || false, dockerLog)
   let cacheFrom
+  let preBuild = () => when({})
 
   const baseImage = [ namePrefix, name, namePostfix ].join('')
   const imageParts = [ repo, baseImage ]
@@ -38,15 +39,6 @@ function buildImage (log, settings, goggles, dockerFactory, options) {
     cacheFrom = options.cacheFrom
   }
 
-  const argSet = {
-    docker,
-    log,
-    imageName,
-    workingPath,
-    dockerFile,
-    cacheFrom
-  }
-
   if (ltsOnly && !defaultInfo.isLTS) {
     log(`Skipping build - Node version (${process.version}) is not LTS`)
     return when({})
@@ -59,20 +51,36 @@ function buildImage (log, settings, goggles, dockerFactory, options) {
     }, 3000)
   }
 
-  var info
+  let info
   log(`Building Docker image '${imageName}'.`)
+
   if (cacheFrom) {
-    log(`Attempting to cache build from '${cacheFrom}'.`)
+    preBuild = () => {
+      log(`Attempting to pull image '${cacheFrom}' to use as cache baseline.`)
+      return docker.pull(cacheFrom)
+        .then(
+          () => {
+            log(`Pull from '${cacheFrom}' complete.`)
+          },
+          err => {
+            log(`Docker failed to pull cache image '${cacheFrom}', building without cache argument: ${err.message}`)
+            cacheFrom = undefined
+          }
+        )
+    }
   }
-  return docker.build(imageName, workingPath, path.relative(workingPath, dockerFile), cacheFrom)
+  return preBuild()
+    .then(
+      () => docker.build(imageName, workingPath, path.relative(workingPath, dockerFile), cacheFrom)
+    )
     .then(
       () => {
         log(`Docker image '${imageName}' built successfully.`)
         return true
       },
-      onBuildFailed.bind(null, log, imageName, argSet)
+      onBuildFailed.bind(null, log, imageName)
     )
-    .catch(exitOrRetry.bind(null, progress))
+    .catch(exitOnError.bind(null, progress))
     .then(() => {
       if (progress) {
         clearInterval(progress)
@@ -120,17 +128,6 @@ function exitOnError () {
   process.exit(100)
 }
 
-function exitOrRetry (progress, error) {
-  if (error.retry) {
-    return retryBuild(error.argSet)
-  } else {
-    if (progress) {
-      clearInterval(progress)
-    }
-    process.exit(100)
-  }
-}
-
 function getBuildInfo (goggles, unlink, workingPath, tags) {
   return goggles.getInfo({ repo: workingPath, tags: tags })
     .then(
@@ -144,16 +141,8 @@ function getBuildInfo (goggles, unlink, workingPath, tags) {
 }
 
 function onBuildFailed (log, imageName, argSet, buildError) {
-  if (argSet.cacheFrom) {
-    log(`Docker build failed with cache-from set to '${argSet.cacheFrom}', retrying build without cache argument`)
-    const retryError = new Error('')
-    retryError.retry = true
-    retryError.argSet = argSet
-    throw retryError
-  } else {
-    log(`Docker build for image '${imageName}' failed: ${buildError.message}`)
-    throw buildError
-  }
+  log(`Docker build for image '${imageName}' failed: ${buildError.message}`)
+  throw buildError
 }
 
 function onPushFailed (log, imageName, pushError) {
@@ -185,23 +174,6 @@ function pushImage (log, docker, noPush, imageName, info) {
         }
       )
   }
-}
-
-function retryBuild (argSet) {
-  const docker = argSet.docker
-  const log = argSet.log
-  const imageName = argSet.imageName
-  const workingPath = argSet.workingPath
-  const dockerFile = argSet.dockerFile
-  delete argSet.cacheFrom
-  log(`Building Docker image '${imageName}'.`)
-  return docker.build(imageName, workingPath, path.relative(workingPath, dockerFile))
-  .then(
-    () => {
-      log(`Docker image '${imageName}' built successfully.`)
-    },
-    onBuildFailed.bind(null, log, imageName, argSet)
-  )
 }
 
 function tagImage (log, docker, skipPRs, imageName, info) {

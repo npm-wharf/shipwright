@@ -9,6 +9,7 @@ const goggles = {
 }
 const docker = {
   build: function () {},
+  pull: function () {},
   pushTags: function () {},
   tagImage: function () {}
 }
@@ -377,6 +378,12 @@ describe('Dockyard', function () {
 
         dockerMock = sinon.mock(docker)
         dockerMock
+          .expects('pull')
+          .withArgs('npm/npm-test:latest')
+          .once()
+          .resolves({})
+
+        dockerMock
           .expects('build')
           .withArgs(imageName, './spec', 'Dockerfile.test', 'npm/npm-test:latest')
           .once()
@@ -425,7 +432,13 @@ describe('Dockyard', function () {
 
       it('should log caching source', function () {
         log.should.have.been.calledWith(
-          `Attempting to cache build from 'npm/npm-test:latest'.`
+          `Attempting to pull image 'npm/npm-test:latest' to use as cache baseline.`
+        )
+      })
+
+      it('should log pull completion', function () {
+        log.should.have.been.calledWith(
+          `Pull from 'npm/npm-test:latest' complete.`
         )
       })
 
@@ -488,6 +501,12 @@ describe('Dockyard', function () {
 
         dockerMock = sinon.mock(docker)
         dockerMock
+          .expects('pull')
+          .withArgs('npm/npm-test:1.0.0')
+          .once()
+          .resolves({})
+
+        dockerMock
           .expects('build')
           .withArgs(imageName, './spec', 'Dockerfile.test', 'npm/npm-test:1.0.0')
           .once()
@@ -536,7 +555,13 @@ describe('Dockyard', function () {
 
       it('should log caching source', function () {
         log.should.have.been.calledWith(
-          `Attempting to cache build from 'npm/npm-test:1.0.0'.`
+          `Attempting to pull image 'npm/npm-test:1.0.0' to use as cache baseline.`
+        )
+      })
+
+      it('should log pull completion', function () {
+        log.should.have.been.calledWith(
+          `Pull from 'npm/npm-test:1.0.0' complete.`
         )
       })
 
@@ -599,8 +624,8 @@ describe('Dockyard', function () {
 
         dockerMock = sinon.mock(docker)
         dockerMock
-          .expects('build')
-          .withArgs(imageName, './spec', 'Dockerfile.test', 'npm/npm-test:1.0.0')
+          .expects('pull')
+          .withArgs('npm/npm-test:1.0.0')
           .once()
           .rejects(new Error('no such thing'))
 
@@ -653,19 +678,13 @@ describe('Dockyard', function () {
 
       it('should log caching source', function () {
         log.should.have.been.calledWith(
-          `Attempting to cache build from 'npm/npm-test:1.0.0'.`
+          `Attempting to pull image 'npm/npm-test:1.0.0' to use as cache baseline.`
         )
       })
 
-      it('should log build failure from bad tag', function () {
+      it('should log pull failure', function () {
         log.should.have.been.calledWith(
-          `Docker build failed with cache-from set to 'npm/npm-test:1.0.0', retrying build without cache argument`
-        )
-      })
-
-      it('should log build start (again)', function () {
-        log.should.have.been.calledWith(
-          `Building Docker image '${imageName}'.`
+          `Docker failed to pull cache image 'npm/npm-test:1.0.0', building without cache argument: no such thing`
         )
       })
 
