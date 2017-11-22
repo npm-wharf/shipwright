@@ -65,7 +65,7 @@ function build (info, settings) {
       type: 'boolean'
     },
     'no-push': {
-      describe: 'prevents dockyard from pushing the image to the registry',
+      describe: 'prevents shipwright from pushing the image to the registry',
       default: false,
       type: 'boolean'
     },
@@ -100,11 +100,11 @@ function build (info, settings) {
   return set
 }
 
-function handle (dockyard, github, info, argv) {
+function handle (shipwright, github, info, argv) {
   if (argv.tags && /[,]/.test(argv.tags)) {
     argv.tags = argv.tags.split(',')
   }
-  return dockyard.buildImage({
+  return shipwright.buildImage({
     repo: argv.repo,
     name: argv.name,
     workingPath: argv[ 'working-path' ],
@@ -146,12 +146,12 @@ function updateWith (github, buildInfo, argv) {
     )
 }
 
-module.exports = function (dockyard, github, settings, info) {
+module.exports = function (shipwright, github, settings, info) {
   return {
     describe: 'builds an artifact according to the options',
     usage: '$0 <command> <target> [options]',
     command: 'build <image|artifact>',
     builder: build(info, settings),
-    handler: handle.bind(null, dockyard, github, info)
+    handler: handle.bind(null, shipwright, github, info)
   }
 }

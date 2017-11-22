@@ -159,8 +159,8 @@ describe('GitHub', function () {
       return github.getOptions('./spec/plugins/example.json')
         .should.eventually.eql({
           source: {
-            owner: 'npm',
-            repo: 'dockyard',
+            owner: 'npm-wharf',
+            repo: 'shipwright',
             file: './package.json'
           },
           module: '../spec/plugins/example'
@@ -171,8 +171,8 @@ describe('GitHub', function () {
       return github.getOptions('./spec/plugins/example.yaml')
         .should.eventually.eql({
           source: {
-            owner: 'npm',
-            repo: 'dockyard',
+            owner: 'npm-wharf',
+            repo: 'shipwright',
             file: './package.json',
             branch: 'not-master'
           },
@@ -184,12 +184,12 @@ describe('GitHub', function () {
       return github.getOptions('./spec/plugins/example.yml')
         .should.eventually.eql({
           source: {
-            owner: 'npm',
-            repo: 'dockyard',
+            owner: 'npm-wharf',
+            repo: 'shipwright',
             file: './package.json'
           },
           module: './spec/plugins/example',
-          branch: 'update-dockyard-version'
+          branch: 'update-shipwright-version'
         })
     })
 
@@ -247,19 +247,19 @@ describe('GitHub', function () {
       process.env.GITHUB_API_TOKEN = 'TEST'
       githubChangeFile
           .withArgs({
-            user: 'npm',
-            repo: 'dockyard',
+            user: 'npm-wharf',
+            repo: 'shipwright',
             filename: './package.json',
             branch: 'master',
-            newBranch: 'update-npm-dockyard-master',
+            newBranch: 'update-npm-wharf-shipwright-master',
             transform: sinon.match.func,
             token: 'TEST'
           }).resolves({ test: true })
 
       return github.updateWith(
         {
-          owner: 'npm',
-          repository: 'dockyard',
+          owner: 'npm-wharf',
+          repository: 'shipwright',
           branch: 'master',
           version: '1.0.0'
         },
@@ -278,18 +278,18 @@ describe('GitHub', function () {
 
     it('should log PR creation', function () {
       log.should.have.been.calledWith(
-        `Creating pull request to 'npm/dockyard:master' to change file './package.json'`
+        `Creating pull request to 'npm-wharf/shipwright:master' to change file './package.json'`
       )
     })
 
     it('should have called githubChangeFile with correct arguments', function () {
       githubChangeFile
         .should.have.been.calledWith({
-          user: 'npm',
-          repo: 'dockyard',
+          user: 'npm-wharf',
+          repo: 'shipwright',
           filename: './package.json',
           branch: 'master',
-          newBranch: 'update-npm-dockyard-master',
+          newBranch: 'update-npm-wharf-shipwright-master',
           transform: sinon.match.func,
           token: 'TEST'
         })

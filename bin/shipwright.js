@@ -7,7 +7,7 @@ var docker = function (sudo) {
   return pequod(sudo, dockerLog)
 }
 var settings = require('../src/settings')(goggles)
-var dockyard = require('../src/index')(log, goggles, docker, settings)
+var shipwright = require('../src/index')(log, goggles, docker, settings)
 var github = require('../src/github')(log, githubChangeRemoteFile)
 var args
 settings
@@ -15,7 +15,7 @@ settings
   .then(function (info) {
     args = require('yargs')
       .usage('$0 <command> <target> [options]')
-      .command(require('../src/commands/build')(dockyard, github, settings, info))
+      .command(require('../src/commands/build')(shipwright, github, settings, info))
       .strict()
       .demandCommand()
       .help()

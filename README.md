@@ -1,4 +1,4 @@
-# dockyard
+# shipwright
 A simple/consistent way to create build artifacts with calculated tags and then update related repositories (think packages, tarballs, docker builds, etc.).
 
 [![Build Status][travis-image]][travis-url]
@@ -10,10 +10,16 @@ __Why Not Bash?__
  * automated testing is nicer than pushing to CI to see what will happen
  * with an increasing set of integration/features I prefer JS as a way to develop and share these features/ideas
 
+## Install
+
+```shell
+npm i @npm-wharf/shipwright
+```
+
 ## CLI
 Right now this mashes a lot of other tools into a promise chain behind a single command.
 
-### dockyard build image
+### shipwright build image
 Builds a docker image with all default options. Read carefully, there are kindovalot.
 
   * --repo - the image repository to build for, **no default**
@@ -32,29 +38,29 @@ Builds a docker image with all default options. Read carefully, there are kindov
   * --registry - defaults to hub.docker.com
   * --lts-only - defaults to `true`: when true, skips everything for non-LTS Node versions 
   * --skip-prs - defaults to `true`: should anything other than a Docker build is done for PRs
-  * --no-push - prevents dockyard from pushing the image to the registry
+  * --no-push - prevents shipwright from pushing the image to the registry
   * --update-with - specify an instruction file for how to send a PR to another GitHub repository's file
   * --sudo - defaults to `true`: use sudo with Docker commands
   * --verbose - defaults to `false`: include Docker build output in console logs
   * --always-build - always produce a build regardless of the branch by providing the default tag specification `[ 'b_v_c_s' ]` if no other tags have been specified
   * --build-branches - defaults to `[ 'staging', 'qa', 'dev' ]`: a list of branches to build for (other than master) with the default tag specification `[ 'b_v_c_s' ]` if no other tags have been specified.
-  * --cache-from-latest - will cause dockyard to add a `--cache-from` argument to Docker with the current image name and the `latest` tag.
-  * --cache-from - will cause dockyard to pass the argument on to docker's `--cache-from`
+  * --cache-from-latest - will cause shipwright to add a `--cache-from` argument to Docker with the current image name and the `latest` tag.
+  * --cache-from - will cause shipwright to pass the argument on to docker's `--cache-from`
 
 ### Use cases for `--always-build` and `--build-branches`
 
-These flags are intended to supply ways to get dockyard to generate build images for development branches without disrupting the useful default tag specs provided for master and tagged builds and without having to constantly rely on filling your commit log with `[build-image]`.
+These flags are intended to supply ways to get shipwright to generate build images for development branches without disrupting the useful default tag specs provided for master and tagged builds and without having to constantly rely on filling your commit log with `[build-image]`.
 
 The `build-branches` defaults effectively guarantee you'll get build images if you push to branches named `staging`, `qa`, or `dev`.
 
 ### Default Build Behavior
 
-With all the tags, it is a bit unclear what the dockyard's default behavior actually would be if you were to, for example, just add the following lines to travis:
+With all the tags, it is a bit unclear what the shipwright's default behavior actually would be if you were to, for example, just add the following lines to travis:
 
 ```shell
 after_success:
   - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
-  - dockyard build image --repo=myRepo --name=imageName 
+  - shipwright build image --repo=myRepo --name=imageName 
 ```
 
 #### For Builds On Master (With Git Tags On The Commit)
@@ -87,13 +93,13 @@ Even without adding flags, you can still get a build on any branch with the tag 
 
 #### For PRs and Builds On Non-LTS Versions of Node
 
-Dockyard won't do _anything_ at all. This is to avoid drawing out the build times on your CI server. You can change these behaviors with the `skip-prs` and `lts-only` flags, of course, but this is about default build behavior.
+shipwright won't do _anything_ at all. This is to avoid drawing out the build times on your CI server. You can change these behaviors with the `skip-prs` and `lts-only` flags, of course, but this is about default build behavior.
 
 ### Caching Support
 
-Dockyard has three different caching support options you can use to populate Docker's `--cache-from` argument.
+shipwright has three different caching support options you can use to populate Docker's `--cache-from` argument.
 
-In the event that any of these flags result in an error from the Docker CLI, Dockyard will fall back to making the command without the `--cache-from` argument. If your build is not getting faster, check your log output and make sure that the image it's trying to cache from actually exists in the target Docker repository.
+In the event that any of these flags result in an error from the Docker CLI, shipwright will fall back to making the command without the `--cache-from` argument. If your build is not getting faster, check your log output and make sure that the image it's trying to cache from actually exists in the target Docker repository.
  
 #### `cache-from-latest`
 
@@ -101,10 +107,10 @@ This flag will append the `latest` tag to your current image and attempt to use 
 
 #### `cache-from`
 
-This argument allows you to provide your own full specification to Dockyard that it will then pass through to Docker.
+This argument allows you to provide your own full specification to shipwright that it will then pass through to Docker.
 
 ## `updateWith` - Instruction Files & PR Plugins
-The `updateWith` argument is way to plug in your own transformers after the fact to get dockyard to send a PR to another GitHub repository in order to update a single file.
+The `updateWith` argument is way to plug in your own transformers after the fact to get shipwright to send a PR to another GitHub repository in order to update a single file.
 
 This uses [github-change-remote-file](https://github.com/boennemann/github-change-remote-file) so the limitation here is that it can change 1 file at a time. The transformer plugin you write will get passed a `buildInfo` hash with all the context of the build and the instruction file with any static arguments you'd like to pass it.
 
@@ -155,7 +161,7 @@ The build information hash will contain the following properties:
 ```json
 {
   "owner": "npm",
-  "repository": "dockyard",
+  "repository": "shipwright",
   "branch": "master",
   "version": "0.1.0",
   "build": 10,
@@ -180,7 +186,7 @@ The build information hash will contain the following properties:
  * add support for additional artifact types
  * support multiple artifact types per build
 
-[travis-url]: https://travis-ci.org/npm-wharf/dockyard
-[travis-image]: https://travis-ci.org/npm-wharf/dockyard.svg?branch=master
-[coveralls-url]: https://coveralls.io/github/npm-wharf/dockyard?branch=master
-[coveralls-image]: https://coveralls.io/repos/github/npm-wharf/dockyard/badge.svg?branch=master
+[travis-url]: https://travis-ci.org/npm-wharf/shipwright
+[travis-image]: https://travis-ci.org/npm-wharf/shipwright.svg?branch=master
+[coveralls-url]: https://coveralls.io/github/npm-wharf/shipwright?branch=master
+[coveralls-image]: https://coveralls.io/repos/github/npm-wharf/shipwright/badge.svg?branch=master

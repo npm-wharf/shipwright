@@ -1,4 +1,3 @@
-const format = require('util').format
 const fs = require('fs')
 const yaml = require('js-yaml')
 const path = require('path')

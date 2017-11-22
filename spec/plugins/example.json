@@ -1,7 +1,7 @@
 {
   "source": {
-    "owner": "npm",
-    "repo": "dockyard",
+    "owner": "npm-wharf",
+    "repo": "shipwright",
     "file": "./package.json"
   },
   "module": "../spec/plugins/example"

@@ -38,7 +38,7 @@ describe('Settings', function () {
     })
 
     it('should get default name', function () {
-      settings.getDefaultName({ path: path.resolve('./') }).should.equal('dockyard')
+      settings.getDefaultName({ path: path.resolve('./') }).should.equal('@npm-wharf/shipwright')
     })
 
     it('should get default tags when tagged', function () {

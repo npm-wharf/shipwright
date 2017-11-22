@@ -1,6 +1,6 @@
 source:
-  owner: npm
-  repo: dockyard
+  owner: npm-wharf
+  repo: shipwright
   file: ./package.json
   branch: not-master
 module: ./spec/plugins/example

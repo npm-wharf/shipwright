@@ -1,10 +1,10 @@
 {
-  "name": "dockyard",
+  "name": "@npm-wharf/shipwright",
   "version": "1.3.3",
   "description": "artifact packaging for service builds",
   "main": "src/index.js",
   "bin": {
-    "dockyard": "./bin/dockyard.js"
+    "shipwright": "./bin/shipwright.js"
   },
   "dependencies": {
     "buildgoggles": "^0.5.1",
@@ -36,7 +36,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/npm-wharf/dockyard.git"
+    "url": "git://github.com/npm-wharf/shipwright.git"
   },
   "keywords": [
     "build",
@@ -46,9 +46,9 @@
   "author": "Alex Robson",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/npm-wharf/dockyard/issues"
+    "url": "https://github.com/npm-wharf/shipwright/issues"
   },
-  "homepage": "https://github.com/npm-wharf/dockyard#readme",
+  "homepage": "https://github.com/npm-wharf/shipwright#readme",
   "standard": {
     "env": [
       "mocha"

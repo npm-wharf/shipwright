@@ -27,14 +27,14 @@ function releaseExit () {
 const dockerFactory = function () { return docker }
 
 const settings = require('../src/settings')(goggles)
-const dockyard = require('../src/index')(log, goggles, dockerFactory, settings)
+const shipwright = require('../src/index')(log, goggles, dockerFactory, settings)
 
-describe('Dockyard', function () {
+describe('Shipwright', function () {
   describe('build image', function () {
     describe('when LTS only and version is not LTS', function () {
       var result
       before(function () {
-        return dockyard.buildImage({ ltsOnly: true, defaultInfo: { isLTS: false } })
+        return shipwright.buildImage({ ltsOnly: true, defaultInfo: { isLTS: false } })
           .then(function (x) { result = x })
       })
 
@@ -85,7 +85,7 @@ describe('Dockyard', function () {
           })
           .once()
 
-        return dockyard.buildImage({
+        return shipwright.buildImage({
           ltsOnly: true,
           repo: 'npm',
           name: 'test',
@@ -189,7 +189,7 @@ describe('Dockyard', function () {
           })
           .once()
 
-        return dockyard.buildImage({
+        return shipwright.buildImage({
           ltsOnly: true,
           repo: 'npm',
           name: 'test',
@@ -295,7 +295,7 @@ describe('Dockyard', function () {
           })
           .once()
 
-        return dockyard.buildImage({
+        return shipwright.buildImage({
           ltsOnly: true,
           alwaysBuild: true,
           repo: 'npm',
@@ -408,7 +408,7 @@ describe('Dockyard', function () {
           })
           .once()
 
-        return dockyard.buildImage({
+        return shipwright.buildImage({
           ltsOnly: true,
           repo: 'npm',
           name: 'test',
@@ -531,7 +531,7 @@ describe('Dockyard', function () {
           })
           .once()
 
-        return dockyard.buildImage({
+        return shipwright.buildImage({
           ltsOnly: true,
           repo: 'npm',
           name: 'test',
@@ -654,7 +654,7 @@ describe('Dockyard', function () {
           })
           .once()
 
-        return dockyard.buildImage({
+        return shipwright.buildImage({
           ltsOnly: true,
           repo: 'npm',
           name: 'test',
@@ -749,7 +749,7 @@ describe('Dockyard', function () {
     })
 
     it('should resolve', function () {
-      return dockyard.getBuildInfo(true, './spec', [ 'v', 'miv' ])
+      return shipwright.getBuildInfo(true, './spec', [ 'v', 'miv' ])
         .should.be.fulfilled
     })
 
@@ -762,7 +762,7 @@ describe('Dockyard', function () {
     it('should log build failure', function () {
       var failure = new Error('fail')
       expect(function () {
-        dockyard.onBuildFailed('test', {}, failure)
+        shipwright.onBuildFailed('test', {}, failure)
       }).to.throw(failure)
       log.should.have.been.calledWith(`Docker build for image 'test' failed: ${failure.message}`)
     })
@@ -770,7 +770,7 @@ describe('Dockyard', function () {
     it('should log push failure', function () {
       var failure = new Error('fail')
       expect(function () {
-        dockyard.onPushFailed('test', failure)
+        shipwright.onPushFailed('test', failure)
       }).to.throw(failure)
       log.should.have.been.calledWith(
         `Pushing the image 'test' failed for some or all tags:\n ${failure.message}`
@@ -780,7 +780,7 @@ describe('Dockyard', function () {
     it('should log tag failure', function () {
       var failure = new Error('fail')
       expect(function () {
-        dockyard.onTagFailed('test', { tag: [ 't1', 't2' ] }, failure)
+        shipwright.onTagFailed('test', { tag: [ 't1', 't2' ] }, failure)
       }).to.throw(failure)
       log.should.have.been.calledWith(
         `Tagging image 'test' with tags, 't1, t2', failed with error:\n fail`
@@ -790,7 +790,7 @@ describe('Dockyard', function () {
     it('should log write info failure', function () {
       var failure = new Error('fail')
       expect(function () {
-        dockyard.onWriteInfoFailed(failure)
+        shipwright.onWriteInfoFailed(failure)
       }).to.throw(failure)
       log.should.have.been.calledWith(
         `Failed to acquire and write build information due to error: ${failure}`
@@ -802,7 +802,7 @@ describe('Dockyard', function () {
     describe('when noPush is true', function () {
       var info
       before(function () {
-        return dockyard.pushImage(true, 'test', { info: 'fake' })
+        return shipwright.pushImage(true, 'test', { info: 'fake' })
           .then(function (x) { info = x })
       })
 
@@ -818,7 +818,7 @@ describe('Dockyard', function () {
     describe('when info.continue is false', function () {
       var info
       before(function () {
-        return dockyard.pushImage(false, 'test', { continue: false })
+        return shipwright.pushImage(false, 'test', { continue: false })
           .then(function (x) { info = x })
       })
 
@@ -844,7 +844,7 @@ describe('Dockyard', function () {
       })
 
       it('should fail on pushTags', function () {
-        return dockyard.pushImage(false, 'test-image', {})
+        return shipwright.pushImage(false, 'test-image', {})
           .should.be.rejectedWith(failure)
       })
 
@@ -868,7 +868,7 @@ describe('Dockyard', function () {
       })
 
       it('should resolve to info on pushTags', function () {
-        return dockyard.pushImage(false, 'test-image', { tag: 't1' })
+        return shipwright.pushImage(false, 'test-image', { tag: 't1' })
           .should.eventually.eql({ tag: 't1' })
       })
 
@@ -892,7 +892,7 @@ describe('Dockyard', function () {
     describe('when skipPRs and PR are true', function () {
       var info
       before(function () {
-        return dockyard.tagImage(true, 'test-image', { ci: { pullRequest: true } })
+        return shipwright.tagImage(true, 'test-image', { ci: { pullRequest: true } })
           .then(function (x) { info = x })
       })
 
@@ -908,7 +908,7 @@ describe('Dockyard', function () {
     describe('when info.continue is false', function () {
       var info
       before(function () {
-        return dockyard.tagImage(false, 'test-image', { continue: false })
+        return shipwright.tagImage(false, 'test-image', { continue: false })
           .then(function (x) { info = x })
       })
 
@@ -933,7 +933,7 @@ describe('Dockyard', function () {
       })
 
       it('should fail on tagImage', function () {
-        return dockyard.tagImage(false, 'test-image', { tag: 't1' })
+        return shipwright.tagImage(false, 'test-image', { tag: 't1' })
           .should.be.rejectedWith(failure)
       })
 
@@ -956,7 +956,7 @@ describe('Dockyard', function () {
       })
 
       it('should succeed on tagImage', function () {
-        return dockyard.tagImage(false, 'test-image', { tag: 't1' })
+        return shipwright.tagImage(false, 'test-image', { tag: 't1' })
           .should.eventually.eql({ tag: 't1' })
       })
 
@@ -974,7 +974,7 @@ describe('Dockyard', function () {
     describe('with no tags', function () {
       var info
       before(function () {
-        return dockyard.writeBuildInfo('./', 'test-image', [], {
+        return shipwright.writeBuildInfo('./', 'test-image', [], {
           branch: 'master',
           ci: {
             pullRequest: false,
@@ -1007,7 +1007,7 @@ describe('Dockyard', function () {
       })
 
       it('should resolve with info', function () {
-        return dockyard.writeBuildInfo('./', 'test-image', [ 't1' ])
+        return shipwright.writeBuildInfo('./', 'test-image', [ 't1' ])
           .should.eventually.eql({
             continue: true,
             fake: true,
@@ -1030,7 +1030,7 @@ describe('Dockyard', function () {
       })
 
       it('should resolve with info and continue flagged as false', function () {
-        return dockyard.writeBuildInfo('./', 'test-image', [ 't1' ])
+        return shipwright.writeBuildInfo('./', 'test-image', [ 't1' ])
           .should.eventually.eql({
             continue: false,
             fake: true,
@@ -1048,7 +1048,7 @@ describe('Dockyard', function () {
     describe('when info.continue is false', function () {
       var info
       before(function () {
-        return dockyard.writeImageFile('./.image.json', 'test-image', { continue: false })
+        return shipwright.writeImageFile('./.image.json', 'test-image', { continue: false })
           .then(function (x) { info = x })
       })
 
@@ -1063,7 +1063,7 @@ describe('Dockyard', function () {
 
     describe('when writing image file fails', function () {
       it('should fail', function () {
-        return dockyard.writeImageFile('./blorp/mcnope.json', 'test-image', {})
+        return shipwright.writeImageFile('./blorp/mcnope.json', 'test-image', {})
           .should.be.rejectedWith(Error, "ENOENT: no such file or directory, open './blorp/mcnope.json'")
       })
 
@@ -1083,7 +1083,7 @@ describe('Dockyard', function () {
       var imageFile
       before(function () {
         imageFile = './spec/.info.json'
-        return dockyard.writeImageFile(imageFile, 'test-image', { tag: [ 't1', 't2' ] })
+        return shipwright.writeImageFile(imageFile, 'test-image', { tag: [ 't1', 't2' ] })
           .then(function (x) { info = x })
       })
 
