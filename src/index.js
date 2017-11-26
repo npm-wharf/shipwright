@@ -140,7 +140,7 @@ function getBuildInfo (goggles, unlink, workingPath, tags) {
     )
 }
 
-function onBuildFailed (log, imageName, argSet, buildError) {
+function onBuildFailed (log, imageName, buildError) {
   log(`Docker build for image '${imageName}' failed: ${buildError.message}`)
   throw buildError
 }

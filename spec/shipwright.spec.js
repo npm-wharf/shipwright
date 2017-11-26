@@ -762,7 +762,7 @@ describe('Shipwright', function () {
     it('should log build failure', function () {
       var failure = new Error('fail')
       expect(function () {
-        shipwright.onBuildFailed('test', {}, failure)
+        shipwright.onBuildFailed('test', failure)
       }).to.throw(failure)
       log.should.have.been.calledWith(`Docker build for image 'test' failed: ${failure.message}`)
     })
