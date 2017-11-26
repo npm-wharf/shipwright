@@ -97,18 +97,15 @@ function buildImage (log, settings, goggles, dockerFactory, options) {
       }
     )
     .then(
-      tagImage.bind(null, log, docker, skipPRs, imageName),
-      onWriteInfoFailed.bind(null, log)
+      tagImage.bind(null, log, docker, skipPRs, imageName)
     )
     .catch(exitOnError)
     .then(
-      pushImage.bind(null, log, docker, noPush, imageName),
-      onTagFailed.bind(null, log, info)
+      pushImage.bind(null, log, docker, noPush, imageName)
     )
     .catch(exitOnError)
     .then(
-      writeImageFile.bind(null, log, imageFile, imageName),
-      onPushFailed.bind(null, log, imageName)
+      writeImageFile.bind(null, log, imageFile, imageName)
     )
     .catch(exitOnError)
 }
@@ -151,7 +148,8 @@ function onPushFailed (log, imageName, pushError) {
 }
 
 function onTagFailed (log, imageName, info, tagError) {
-  log(`Tagging image '${imageName}' with tags, '${info.tag.join(', ')}', failed with error:\n ${tagError.message}`)
+  const tag = Array.isArray(info.tag) ? info.tag.join(', ') : info.tag
+  log(`Tagging image '${imageName}' with tags, '${tag}', failed with error:\n ${tagError.message}`)
   throw tagError
 }
 
@@ -171,7 +169,8 @@ function pushImage (log, docker, noPush, imageName, info) {
         () => {
           log(`Docker image '${imageName}' was pushed successfully with tags: ${Array.isArray(info.tag) ? info.tag.join(', ') : info.tag}`)
           return info
-        }
+        },
+        onPushFailed.bind(null, log, imageName)
       )
   }
 }
@@ -184,7 +183,8 @@ function tagImage (log, docker, skipPRs, imageName, info) {
     log('Tagging image.')
     return docker.tagImage(imageName)
       .then(
-        () => info
+        () => info,
+        onTagFailed.bind(null, log, imageName, info)
       )
   }
 }
@@ -209,8 +209,12 @@ function writeBuildInfo (log, goggles, workingPath, imageName, tags, info) {
           } else {
             newInfo.continue = true
           }
+          const json = JSON.stringify(newInfo, null, 2)
+          const filePath = path.resolve(process.cwd(), '.buildInfo.json')
+          fs.writeFileSync(filePath, json, 'utf8')
           return newInfo
-        }
+        },
+      onWriteInfoFailed.bind(null, log)
       )
   } else {
     log('No tags were specified, skipping tag and push.')
