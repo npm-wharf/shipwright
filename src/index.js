@@ -20,10 +20,16 @@ function buildImage (log, settings, goggles, dockerFactory, options) {
   const ltsOnly = options.ltsOnly
   const noPush = options.noPush || false
   const defaultInfo = options.defaultInfo
+  const buildArgs = options.buildArgs
   const indicateProgress = options.indicateProgress
-  const docker = dockerFactory(options.sudo || false, dockerLog)
+  const docker = dockerFactory({
+    sudo: options.sudo || false,
+    log: options.verbose ? dockerLog : null
+  })
   let cacheFrom
   let preBuild = () => when({})
+
+  console.log(buildArgs)
 
   const baseImage = [ namePrefix, name, namePostfix ].join('')
   const imageParts = [ repo, baseImage ]
@@ -71,7 +77,12 @@ function buildImage (log, settings, goggles, dockerFactory, options) {
   }
   return preBuild()
     .then(
-      () => docker.build(imageName, workingPath, path.relative(workingPath, dockerFile), cacheFrom)
+      () => docker.build(imageName, {
+        working: workingPath,
+        file: dockerFile,
+        args: buildArgs,
+        cacheFrom
+      })
     )
     .then(
       () => {

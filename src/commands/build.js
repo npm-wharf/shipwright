@@ -44,6 +44,10 @@ function build (info, settings) {
       describe: 'a list of branches to build for (aside from master) with the d_v_c_s style tag',
       default: 'dev,qa,staging'
     },
+    'build-arg': {
+      describe: 'a list of build arguments and values in the Dockerfile',
+      type: 'array'
+    },
     registry: {
       describe: 'the image registry to build for',
       default: 'https://hub.docker.com'
@@ -62,7 +66,7 @@ function build (info, settings) {
     'lts-only': {
       describe: 'limits the build for LTS versions of Node only',
       default: true,
-      type: 'boolean'
+      boolean: 'boolean'
     },
     'no-push': {
       describe: 'prevents shipwright from pushing the image to the registry',
@@ -100,6 +104,17 @@ function build (info, settings) {
   return set
 }
 
+function getBuildArgs (buildArgs) {
+  if (buildArgs) {
+    return buildArgs.reduce((acc, pair) => {
+      const [key, value] = pair.split(/[=]/)
+      acc[key] = value
+      return acc
+    }, {})
+  }
+  return undefined
+}
+
 function handle (shipwright, github, info, argv) {
   if (argv.tags && /[,]/.test(argv.tags)) {
     argv.tags = argv.tags.split(',')
@@ -122,7 +137,9 @@ function handle (shipwright, github, info, argv) {
     skipPRs: argv[ 'skip-prs' ],
     ltsOnly: argv[ 'lts-only' ],
     noPush: argv[ 'no-push' ],
-    defaultInfo: info
+    defaultInfo: info,
+    buildArgs: getBuildArgs(argv['build-arg']),
+    verbose: argv.verbose
   })
   .then(
     buildInfo => {

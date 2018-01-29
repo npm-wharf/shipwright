@@ -22,7 +22,7 @@ function getDefaultWorkingPath () {
 }
 
 function getDefaultDockerfile () {
-  return path.resolve('./Dockerfile')
+  return 'Dockerfile'
 }
 
 function getDefaultName (info) {

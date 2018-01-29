@@ -34,7 +34,7 @@ describe('Settings', function () {
     })
 
     it('should get default Dockerfile', function () {
-      settings.getDefaultDockerfile().should.equal(path.resolve('./Dockerfile'))
+      settings.getDefaultDockerfile().should.equal('Dockerfile')
     })
 
     it('should get default name', function () {

@@ -22,30 +22,31 @@ Right now this mashes a lot of other tools into a promise chain behind a single 
 ### shipwright build image
 Builds a docker image with all default options. Read carefully, there are kindovalot.
 
-  * --repo - the image repository to build for, **no default**
-  * --name - defaults to the package's `name`
-  * --name-prefix - optionally prefix default package name
-  * --name-postfix - optionally postfix default package name
-  * --working-path - the working directory for the build, defaults to `./`
-  * --docker-file - the DockerFile to use, defaults to `./Dockerfile`
-  * --tags - defaults are: (see [buildgoggles](https://github.com/arobson/buildgoggles) for tag specifications)
+  * `--repo` - the image repository to build for, **no default**
+  * `--name` - defaults to the package's `name`
+  * `--name-prefix` - optionally prefix default package name
+  * `--name-postfix` - optionally postfix default package name
+  * `--working-path` - the working directory for the build, defaults to `./`
+  * `--docker-file` - the DockerFile to use, defaults to `./Dockerfile`
+  * `--build-arg` - used to define an `ARG` key in the Dockerfile. (example: `--build-arg key=value)
+  * `--tags` - defaults are: (see [buildgoggles](https://github.com/arobson/buildgoggles) for tag specifications)
     * `lt,v_s,v,miv,ma` `[ 'latest', '1.2.3_abcdefgh', '1.2.3', '1.2', '1' ]` - for tagged builds
     * `v_c_s` `[ '1.2.3_10_abcdefgh' ]` - for master commits
     * `b_v_c_s` `[ 'branch_1.2.3_10_abcdefgh' ]` - in any other branch when:
       * `--always-build` is an argument
       * `--build-branches` contains the current branch
       * the commit message contains `[build-image]`
-  * --registry - defaults to hub.docker.com
-  * --lts-only - defaults to `true`: when true, skips everything for non-LTS Node versions 
-  * --skip-prs - defaults to `true`: should anything other than a Docker build is done for PRs
-  * --no-push - prevents shipwright from pushing the image to the registry
-  * --update-with - specify an instruction file for how to send a PR to another GitHub repository's file
-  * --sudo - defaults to `true`: use sudo with Docker commands
-  * --verbose - defaults to `false`: include Docker build output in console logs
-  * --always-build - always produce a build regardless of the branch by providing the default tag specification `[ 'b_v_c_s' ]` if no other tags have been specified
-  * --build-branches - defaults to `[ 'staging', 'qa', 'dev' ]`: a list of branches to build for (other than master) with the default tag specification `[ 'b_v_c_s' ]` if no other tags have been specified.
-  * --cache-from-latest - will cause shipwright to add a `--cache-from` argument to Docker with the current image name and the `latest` tag.
-  * --cache-from - will cause shipwright to pass the argument on to docker's `--cache-from`
+  * `--registry` - defaults to hub.docker.com
+  * `--lts-only` - defaults to `true`: when true, skips everything for non-LTS Node versions 
+  * `--skip-prs` - defaults to `true`: should anything other than a Docker build is done for PRs
+  * `--no-push` - prevents shipwright from pushing the image to the registry
+  * `--update-with` - specify an instruction file for how to send a PR to another GitHub repository's file
+  * `--sudo` - defaults to `true`: use sudo with Docker commands
+  * `--verbose` - defaults to `false`: include Docker build output in console logs
+  * `--always-build` - always produce a build regardless of the branch by providing the default tag specification `[ 'b_v_c_s' ]` if no other tags have been specified
+  * `--build-branches` - defaults to `[ 'staging', 'qa', 'dev' ]`: a list of branches to build for (other than master) with the default tag specification `[ 'b_v_c_s' ]` if no other tags have been specified.
+  * `--cache-from-latest` - will cause shipwright to add a `--cache-from` argument to Docker with the current image name and the `latest` tag.
+  * `--cache-from` - will cause shipwright to pass the argument on to docker's `--cache-from`
 
 ### Use cases for `--always-build` and `--build-branches`
 
