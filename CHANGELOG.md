@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.4.1"></a>
+## [1.4.1](https://github.com/npm-wharf/shipwright/compare/v1.4.0...v1.4.1) (2018-01-29)
+
+
+### Bug Fixes
+
+* remove console.log for build args ([2e675bb](https://github.com/npm-wharf/shipwright/commit/2e675bb))
+
+
+
 <a name="1.4.0"></a>
 # [1.4.0](https://github.com/npm-wharf/shipwright/compare/v1.3.5...v1.4.0) (2018-01-29)
 
