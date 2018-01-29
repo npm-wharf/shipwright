@@ -29,8 +29,6 @@ function buildImage (log, settings, goggles, dockerFactory, options) {
   let cacheFrom
   let preBuild = () => when({})
 
-  console.log(buildArgs)
-
   const baseImage = [ namePrefix, name, namePostfix ].join('')
   const imageParts = [ repo, baseImage ]
   if (registry !== DEFAULT_REGISTRY && registry) {
