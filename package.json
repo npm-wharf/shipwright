@@ -7,7 +7,7 @@
     "shipwright": "./bin/shipwright.js"
   },
   "dependencies": {
-    "buildgoggles": "^0.5.1",
+    "buildgoggles": "^0.5.2",
     "github-change-remote-file": "^4.2.0",
     "js-yaml": "^3.8.4",
     "pequod": "^1.6.0",
