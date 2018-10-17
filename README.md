@@ -47,6 +47,7 @@ Builds a docker image with all default options. Read carefully, there are kindov
   * `--build-branches` - defaults to `[ 'staging', 'qa', 'dev' ]`: a list of branches to build for (other than master) with the default tag specification `[ 'b_v_c_s' ]` if no other tags have been specified.
   * `--cache-from-latest` - will cause shipwright to add a `--cache-from` argument to Docker with the current image name and the `latest` tag.
   * `--cache-from` - will cause shipwright to pass the argument on to docker's `--cache-from`
+  * `--flatten` - creates a new flattened image with no history and a single layer
 
 ### Use cases for `--always-build` and `--build-branches`
 

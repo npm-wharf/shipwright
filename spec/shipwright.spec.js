@@ -8,7 +8,10 @@ const goggles = {
   getInfo: function () {}
 }
 const docker = {
+  create: function () {},
   build: function () {},
+  export: function () {},
+  import: function () {},
   pull: function () {},
   pushTags: function () {},
   tagImage: function () {}
@@ -637,6 +640,172 @@ describe('Shipwright', function () {
       after(function () {
         dockerMock.verify()
         gogglesMock.verify()
+        fs.unlinkSync(path.resolve(imageFile))
+      })
+    })
+
+    describe('when building image with flatten', function () {
+      var imageFile
+      var imageName
+      var gogglesMock
+      var dockerMock
+      var tempImage
+      var exitSpy
+
+      before(function () {
+        imageFile = 'spec/.flattened.json'
+        imageName = 'npm/npm-test'
+        tempImage = 'temp'
+
+        exitSpy = sinon.stub()
+        captureExit(exitSpy)
+
+        dockerMock = sinon.mock(docker)
+        dockerMock
+          .expects('pull')
+          .withArgs('npm/npm-test:1.0.0')
+          .once()
+          .resolves({})
+
+        dockerMock
+          .expects('build')
+          .withArgs(tempImage, {
+            args: undefined,
+            working: './spec',
+            file: 'Dockerfile.test',
+            cacheFrom: 'npm/npm-test:1.0.0'
+          })
+          .once()
+          .resolves({})
+
+        dockerMock
+          .expects('create')
+          .withArgs(tempImage, 'temp')
+          .once()
+          .resolves({})
+
+        dockerMock
+          .expects('export')
+          .withArgs(tempImage)
+          .once()
+          .resolves('A-PIPE')
+
+        dockerMock
+          .expects('import')
+          .withArgs('pipe', imageName, { pipe: 'A-PIPE' })
+          .once()
+          .resolves({})
+
+        dockerMock
+          .expects('tagImage')
+          .withArgs(imageName)
+          .resolves({})
+
+        dockerMock
+          .expects('pushTags')
+          .withArgs(imageName)
+          .resolves()
+
+        gogglesMock = sinon.mock(goggles)
+        gogglesMock
+          .expects('getInfo')
+          .withArgs({ repo: './spec', tags: [ 'lt', 'v_c_s' ] })
+          .resolves({
+            tag: [ 'latest', '1.1.1_10_a1b2c3d4' ]
+          })
+          .once()
+
+        return shipwright.buildImage({
+          ltsOnly: true,
+          repo: 'npm',
+          name: 'test',
+          namePrefix: 'npm-',
+          workingPath: './spec',
+          dockerFile: 'Dockerfile.test',
+          tags: [ 'lt', 'v_c_s' ],
+          output: '.flattened.json',
+          cacheFrom: 'npm/npm-test:1.0.0',
+          flatten: true,
+          defaultInfo: {
+            isLTS: true
+          }
+        })
+      })
+
+      it('should log build start', function () {
+        log.should.have.been.calledWith(
+          `Building Docker image '${imageName}'.`
+        )
+      })
+
+      it('should log caching source', function () {
+        log.should.have.been.calledWith(
+          `Attempting to pull image 'npm/npm-test:1.0.0' to use as cache baseline.`
+        )
+      })
+
+      it('should log pull completion', function () {
+        log.should.have.been.calledWith(
+          `Pull from 'npm/npm-test:1.0.0' complete.`
+        )
+      })
+
+      it('should log build complete', function () {
+        log.should.have.been.calledWith(
+          `Docker image '${imageName}' built successfully.`
+        )
+      })
+
+      it('should log flattening beginning', function () {
+        log.should.have.been.calledWith(
+          `Flattening temporary image '${tempImage}'.`
+        )
+      })
+
+      it('should log flattening complete', function () {
+        log.should.have.been.calledWith(
+          `Image flattened into '${imageName}' successfully.`
+        )
+      })
+
+      it('should log tag started', function () {
+        log.should.have.been.calledWith('Tagging image.')
+      })
+
+      it('should log push started', function () {
+        log.should.have.been.calledWith('Pushing image.')
+      })
+
+      it('should log push success', function () {
+        log.should.have.been.calledWith(
+          `Docker image '${imageName}' was pushed successfully with tags: latest, 1.1.1_10_a1b2c3d4`
+        )
+      })
+
+      it('should log writing image file', function () {
+        log.should.have.been.calledWith(
+          `Writing image file to '${imageFile}'.`
+        )
+      })
+
+      it('should write correct info to file', function () {
+        var json = JSON.parse(fs.readFileSync(imageFile, 'utf8'))
+        json.should.eql({
+          image: imageName,
+          tags: [ 'latest', '1.1.1_10_a1b2c3d4' ]
+        })
+      })
+
+      it('should log writing image file success', function () {
+        log.should.have.been.calledWith(
+          `Image file written to '${imageFile}' successfully.`
+        )
+      })
+
+      after(function () {
+        dockerMock.verify()
+        gogglesMock.verify()
+        releaseExit()
         fs.unlinkSync(path.resolve(imageFile))
       })
     })

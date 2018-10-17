@@ -90,6 +90,12 @@ function build (info, settings) {
       default: false,
       type: 'boolean'
     },
+    flatten: {
+      alias: 'f',
+      describe: 'creates a new image with 1 layer and no command history',
+      default: false,
+      type: 'boolean'
+    },
     verbose: {
       describe: 'includes docker build output',
       default: false,
@@ -137,6 +143,7 @@ function handle (shipwright, github, info, argv) {
     skipPRs: argv[ 'skip-prs' ],
     ltsOnly: argv[ 'lts-only' ],
     noPush: argv[ 'no-push' ],
+    flatten: argv[ 'flatten' ],
     defaultInfo: info,
     buildArgs: getBuildArgs(argv['build-arg']),
     verbose: argv.verbose

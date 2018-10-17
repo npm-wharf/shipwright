@@ -26,6 +26,7 @@ function buildImage (log, settings, goggles, dockerFactory, options) {
     sudo: options.sudo || false,
     log: options.verbose ? dockerLog : null
   })
+  const flatten = options.flatten
   let cacheFrom
   let preBuild = () => when({})
 
@@ -34,7 +35,12 @@ function buildImage (log, settings, goggles, dockerFactory, options) {
   if (registry !== DEFAULT_REGISTRY && registry) {
     imageParts.unshift(registry)
   }
-  const imageName = imageParts.join('/')
+  let imageName = imageParts.join('/')
+  const temporary = 'temp'
+  const final = imageName
+  if (flatten) {
+    imageName = temporary
+  }
   const imageFile = path.join(workingPath, output)
 
   if (options.cacheFromLatest) {
@@ -56,7 +62,7 @@ function buildImage (log, settings, goggles, dockerFactory, options) {
   }
 
   let info
-  log(`Building Docker image '${imageName}'.`)
+  log(`Building Docker image '${final}'.`)
 
   if (cacheFrom) {
     preBuild = () => {
@@ -84,7 +90,7 @@ function buildImage (log, settings, goggles, dockerFactory, options) {
     )
     .then(
       () => {
-        log(`Docker image '${imageName}' built successfully.`)
+        log(`Docker image '${final}' built successfully.`)
         return true
       },
       onBuildFailed.bind(null, log, imageName)
@@ -95,8 +101,18 @@ function buildImage (log, settings, goggles, dockerFactory, options) {
         clearInterval(progress)
       }
     })
+    .then(() => {
+      if (flatten) {
+        return flattenImage(log, docker, imageName, final)
+          .then(() => {
+            imageName = final
+            log(`Image flattened into '${imageName}' successfully.`)
+          })
+      }
+    })
+    .catch(exitOnError)
     .then(
-      writeBuildInfo.bind(null, log, goggles, workingPath, imageName, tagSpecs, defaultInfo)
+      writeBuildInfo.bind(null, log, goggles, workingPath, final, tagSpecs, defaultInfo)
     )
     .catch(exitOnError)
     .then(
@@ -106,15 +122,15 @@ function buildImage (log, settings, goggles, dockerFactory, options) {
       }
     )
     .then(
-      tagImage.bind(null, log, docker, skipPRs, imageName)
+      tagImage.bind(null, log, docker, skipPRs, final)
     )
     .catch(exitOnError)
     .then(
-      pushImage.bind(null, log, docker, noPush, imageName)
+      pushImage.bind(null, log, docker, noPush, final)
     )
     .catch(exitOnError)
     .then(
-      writeImageFile.bind(null, log, imageFile, imageName)
+      writeImageFile.bind(null, log, imageFile, final)
     )
     .catch(exitOnError)
 }
@@ -132,6 +148,17 @@ function dockerLog (lines) {
 
 function exitOnError () {
   process.exit(100)
+}
+
+function flattenImage (log, docker, initialImage, finalImage) {
+  log(`Flattening temporary image '${initialImage}'.`)
+  return docker.create(initialImage, 'temp')
+    .then(() => {
+      return docker.export('temp')
+        .then(pipe => {
+          return docker.import('pipe', finalImage, { pipe })
+        })
+    })
 }
 
 function getBuildInfo (goggles, unlink, workingPath, tags) {
@@ -223,7 +250,7 @@ function writeBuildInfo (log, goggles, workingPath, imageName, tags, info) {
           fs.writeFileSync(filePath, json, 'utf8')
           return newInfo
         },
-      onWriteInfoFailed.bind(null, log)
+        onWriteInfoFailed.bind(null, log)
       )
   } else {
     log('No tags were specified, skipping tag and push.')
