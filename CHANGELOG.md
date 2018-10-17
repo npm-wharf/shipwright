@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.5.0"></a>
+# [1.5.0](https://github.com/npm-wharf/shipwright/compare/v1.4.2...v1.5.0) (2018-10-17)
+
+
+### Features
+
+* add flatten flag that enables shipwright to produce a flattened image to remove command and layers from Docker image when built ([cddda4f](https://github.com/npm-wharf/shipwright/commit/cddda4f))
+
+
+
 <a name="1.4.2"></a>
 ## [1.4.2](https://github.com/npm-wharf/shipwright/compare/v1.4.1...v1.4.2) (2018-06-27)
 
