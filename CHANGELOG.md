@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.5.1"></a>
+## [1.5.1](https://github.com/npm-wharf/shipwright/compare/v1.5.0...v1.5.1) (2018-10-18)
+
+
+### Bug Fixes
+
+* correct bug introduced to cache-from-latest by new flatten behavior ([dd29313](https://github.com/npm-wharf/shipwright/commit/dd29313))
+
+
+
 <a name="1.5.0"></a>
 # [1.5.0](https://github.com/npm-wharf/shipwright/compare/v1.4.2...v1.5.0) (2018-10-17)
 
