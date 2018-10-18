@@ -106,7 +106,7 @@ function buildImage (log, settings, goggles, dockerFactory, options) {
         return flattenImage(log, docker, imageName, final)
           .then(() => {
             imageName = final
-            log(`Image flattened into '${imageName}' successfully.`)
+            log(`Image flattened into '${final}' successfully.`)
           })
       }
     })
@@ -151,14 +151,16 @@ function exitOnError () {
 }
 
 function flattenImage (log, docker, initialImage, finalImage) {
-  log(`Flattening temporary image '${initialImage}'.`)
-  return docker.create(initialImage, 'temp')
-    .then(() => {
-      return docker.export('temp')
-        .then(pipe => {
-          return docker.import('pipe', finalImage, { pipe })
-        })
-    })
+  log(`Flattening temporary image '${initialImage}' into '${finalImage}'.`)
+  return docker.create(`${initialImage}:latest`, { name: 'temp-container' })
+    .then(
+      () => {
+        return docker.export('temp-container')
+          .then(pipe => {
+            return docker.import('pipe', finalImage, { pipe })
+          })
+      }
+    )
 }
 
 function getBuildInfo (goggles, unlink, workingPath, tags) {

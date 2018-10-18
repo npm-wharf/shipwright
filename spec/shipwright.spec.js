@@ -680,13 +680,13 @@ describe('Shipwright', function () {
 
         dockerMock
           .expects('create')
-          .withArgs(tempImage, 'temp')
+          .withArgs(`${tempImage}:latest`, { name: 'temp-container' })
           .once()
           .resolves({})
 
         dockerMock
           .expects('export')
-          .withArgs(tempImage)
+          .withArgs('temp-container')
           .once()
           .resolves('A-PIPE')
 
@@ -758,7 +758,7 @@ describe('Shipwright', function () {
 
       it('should log flattening beginning', function () {
         log.should.have.been.calledWith(
-          `Flattening temporary image '${tempImage}'.`
+          `Flattening temporary image '${tempImage}' into '${imageName}'.`
         )
       })
 
