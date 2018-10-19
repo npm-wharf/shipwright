@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.5.6"></a>
+## [1.5.6](https://github.com/npm-wharf/shipwright/compare/v1.5.5...v1.5.6) (2018-10-19)
+
+
+### Bug Fixes
+
+* attempt to improve logging to help with troubleshooting Travis edge case during flattening ([abb6033](https://github.com/npm-wharf/shipwright/commit/abb6033))
+
+
+
 <a name="1.5.5"></a>
 ## [1.5.5](https://github.com/npm-wharf/shipwright/compare/v1.5.4...v1.5.5) (2018-10-19)
 
