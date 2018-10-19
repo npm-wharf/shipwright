@@ -155,15 +155,13 @@ function flattenImage (log, docker, initialImage, finalImage) {
   const tag = `${initialImage}:latest`
   return docker.inspect(tag)
     .then(data => {
+      const changes = []
       const user = data.Config.User
       const working = data.Config.WorkingDir
       const env = data.Config.Env || []
       const ports = Object.keys(data.Config.ExposedPorts || {})
       const cmd = data.Config.Cmd || []
       const entry = data.Config.Entrypoint || []
-
-      const changes = []
-
       if (user) {
         changes.push(`USER ${user}`)
       }
@@ -181,7 +179,7 @@ function flattenImage (log, docker, initialImage, finalImage) {
         })
       }
       if (cmd.length > 0) {
-        changes.push(`CMD ${cmd.join(' ')}`)
+        changes.push(`CMD ${JSON.stringify(cmd)}`)
       }
       if (entry.length > 0) {
         changes.push(`ENTRYPOINT ${JSON.stringify(entry)}`)

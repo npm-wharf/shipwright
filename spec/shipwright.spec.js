@@ -695,7 +695,7 @@ describe('Shipwright', function () {
                 '443/tcp': {},
                 '80/tcp': {}
               },
-              Cmd: [ '/bin/sh', '-c', 'this is a ./test' ],
+              Cmd: [ '/bin/sh', '-c', 'this', 'is', 'a', './test' ],
               WorkingDir: '/my/path',
               Entrypoint: [ '/bin/sh', '-c', '= [ "node", "/src/server.js" ]' ]
             }
@@ -725,7 +725,7 @@ describe('Shipwright', function () {
               'ENV TWO=dos',
               'EXPOSE 443/tcp',
               'EXPOSE 80/tcp',
-              'CMD /bin/sh -c this is a ./test',
+              'CMD ["/bin/sh","-c","this","is","a","./test"]',
               'ENTRYPOINT ["/bin/sh","-c","= [ \\"node\\", \\"/src/server.js\\" ]"]'
             ]
           })
