@@ -15,6 +15,7 @@ const docker = {
   inspect: function () {},
   pull: function () {},
   pushTags: function () {},
+  removeContainer: function () {},
   tagImage: function () {}
 }
 
@@ -700,6 +701,12 @@ describe('Shipwright', function () {
               Entrypoint: [ '/bin/sh', '-c', '= [ "node", "/src/server.js" ]' ]
             }
           })
+
+        dockerMock
+          .expects('removeContainer')
+          .withArgs('temp-container', { force: true })
+          .once()
+          .resolves({})
 
         dockerMock
           .expects('create')

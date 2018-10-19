@@ -151,7 +151,6 @@ function exitOnError () {
 }
 
 function flattenImage (log, docker, initialImage, finalImage) {
-  log(`Flattening temporary image '${initialImage}' into '${finalImage}'.`)
   const tag = `${initialImage}:latest`
   return docker.inspect(tag)
     .then(data => {
@@ -184,15 +183,20 @@ function flattenImage (log, docker, initialImage, finalImage) {
       if (entry.length > 0) {
         changes.push(`ENTRYPOINT ${JSON.stringify(entry)}`)
       }
-      return docker.create(tag, { name: 'temp-container' })
-        .then(
-          () => {
-            return docker.export('temp-container')
-              .then(pipe => {
-                return docker.import('pipe', finalImage, { pipe, changes })
-              })
-          }
-        )
+      log(`Flattening temporary image '${initialImage}' into '${finalImage}'.`)
+      const onNoContainer = () => {
+        return docker.create(tag, { name: 'temp-container' })
+          .then(
+            () => {
+              return docker.export('temp-container')
+                .then(pipe => {
+                  return docker.import('pipe', finalImage, { pipe, changes }).catch(e => console.log(e))
+                }).catch(e => console.log(e))
+            }
+          ).catch(e => console.log(e))
+      }
+      return docker.removeContainer('temp-container', { force: true })
+        .then(onNoContainer, onNoContainer)
     })
 }
 
