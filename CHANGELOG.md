@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.5.11"></a>
+## [1.5.11](https://github.com/npm-wharf/shipwright/compare/v1.5.10...v1.5.11) (2018-10-19)
+
+
+### Bug Fixes
+
+* correctly surround environment variables containing spaces with quotes ([db40263](https://github.com/npm-wharf/shipwright/commit/db40263))
+
+
+
 <a name="1.5.10"></a>
 ## [1.5.10](https://github.com/npm-wharf/shipwright/compare/v1.5.9...v1.5.10) (2018-10-19)
 
