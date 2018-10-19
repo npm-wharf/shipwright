@@ -1,5 +1,6 @@
 require('./setup.js')
 const fs = require('fs')
+const os = require('os')
 const path = require('path')
 const when = require('when')
 
@@ -931,7 +932,7 @@ describe('Shipwright', function () {
 
         dockerMock
           .expects('import')
-          .withArgs('./temp-container.tgz', imageName, {
+          .withArgs(`${os.tmpdir()}/temp-container.tgz`, imageName, {
             changes: [
               'USER root',
               'WORKDIR /my/path',
@@ -1015,7 +1016,7 @@ describe('Shipwright', function () {
 
       it('should log flattening beginning', function () {
         log.should.have.been.calledWith(
-          `Exporting container to file './temp-container.tgz'.`
+          `Exporting container to file '${os.tmpdir()}/temp-container.tgz'.`
         )
       })
 

@@ -4,6 +4,7 @@ const path = require('path')
 const uuid = require('uuid')
 const when = require('when')
 const DEFAULT_REGISTRY = 'https://hub.docker.com'
+const MB = 1048576
 
 function buildImage (log, settings, goggles, dockerFactory, options) {
   const repo = options.repo
@@ -157,7 +158,7 @@ function exitOnError (e) {
 function flattenByDisk (log, docker, containerName, tag, finalImage, changes) {
   return docker.create(tag, { name: containerName })
     .then(() => {
-      const fileName = './temp-container.tgz'
+      const fileName = path.resolve(os.tmpdir(), './temp-container.tgz')
       log(`Exporting container to file '${fileName}'.`)
       return docker.export(containerName, { output: fileName })
         .then(() => {
@@ -188,14 +189,17 @@ function flattenByPipe (log, docker, containerName, tag, finalImage, changes) {
 
 function flattenImage (log, docker, initialImage, finalImage) {
   const tag = `${initialImage}:latest`
-  const containerName = uuid.v4()
+  const containerName = uuid.v4().split('-')[4]
   return getChangesForImport(docker, tag)
     .then(changes => {
       log(`Flattening temporary image '${initialImage}' into '${finalImage}'.`)
-      const flatten = (changes.size / 2) > os.freemem()
+      const freeMem = os.freemem()
+      const imageSize = changes.size
+      delete changes.size
+      const flatten = (imageSize * 2) > freeMem
         ? flattenByDisk
         : flattenByPipe
-      delete changes.size
+      log(`image size ${imageSize / MB} MB, free memory ${freeMem / MB} MB `)
       return flatten(log, docker, containerName, tag, finalImage, changes)
     })
 }
