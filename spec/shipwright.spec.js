@@ -912,7 +912,7 @@ describe('Shipwright', function () {
               WorkingDir: '/my/path',
               Entrypoint: [ '/bin/sh', '-c', '= [ "node", "/src/server.js" ]' ]
             },
-            Size: 1000000000
+            Size: Number.MAX_SAFE_INTEGER
           })
 
         dockerMock
