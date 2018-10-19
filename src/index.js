@@ -1,5 +1,7 @@
 const fs = require('fs')
+const os = require('os')
 const path = require('path')
+const uuid = require('uuid')
 const when = require('when')
 const DEFAULT_REGISTRY = 'https://hub.docker.com'
 
@@ -152,8 +154,63 @@ function exitOnError (e) {
   process.exit(100)
 }
 
+function flattenByDisk (docker, containerName, tag, finalImage, changes) {
+  return docker.create(tag, { name: containerName })
+    .then(() => {
+      const fileName = './temp-container.tgz'
+      return docker.export(containerName, { output: fileName })
+        .then(() => {
+          return docker.import(fileName, finalImage, { changes })
+            .then(() => {
+              if (fs.existsSync(fileName)) {
+                fs.unlinkSync(fileName)
+              }
+              return docker.removeContainer(containerName, { force: true })
+            })
+        })
+    })
+}
+
+function flattenByPipe (docker, containerName, tag, finalImage, changes) {
+  return docker.create(tag, { name: containerName })
+    .then(() => {
+      return docker.export(containerName)
+        .then(pipe => {
+          return docker.import('pipe', finalImage, { pipe, changes })
+            .then(() => {
+              return docker.removeContainer(containerName, { force: true })
+            })
+        })
+    })
+}
+
 function flattenImage (log, docker, initialImage, finalImage) {
   const tag = `${initialImage}:latest`
+  const containerName = uuid.v4()
+  return getChangesForImport(docker, tag)
+    .then(changes => {
+      log(`Flattening temporary image '${initialImage}' into '${finalImage}'.`)
+      const flatten = (changes.size / 2) > os.freemem()
+        ? flattenByDisk
+        : flattenByPipe
+      delete changes.size
+      return flatten(docker, containerName, tag, finalImage, changes)
+    })
+}
+
+function getBuildInfo (goggles, unlink, workingPath, tags) {
+  return goggles.getInfo({ repo: workingPath, tags: tags })
+    .then(
+      info => {
+        if (unlink) {
+          fs.unlinkSync(path.resolve(workingPath, '.buildinfo.json'))
+        }
+        return info
+      }
+    )
+}
+
+function getChangesForImport (docker, tag) {
   return docker.inspect(tag)
     .then(data => {
       const changes = []
@@ -185,33 +242,9 @@ function flattenImage (log, docker, initialImage, finalImage) {
       if (entry.length > 0) {
         changes.push(`ENTRYPOINT ${JSON.stringify(entry)}`)
       }
-      log(`Flattening temporary image '${initialImage}' into '${finalImage}'.`)
-      const onNoContainer = () => {
-        return docker.create(tag, { name: 'temp-container' })
-          .then(
-            () => {
-              return docker.export('temp-container')
-                .then(pipe => {
-                  return docker.import('pipe', finalImage, { pipe, changes })
-                })
-            }
-          )
-      }
-      return docker.removeContainer('temp-container', { force: true })
-        .then(onNoContainer, onNoContainer)
+      changes.size = data.Size
+      return changes
     })
-}
-
-function getBuildInfo (goggles, unlink, workingPath, tags) {
-  return goggles.getInfo({ repo: workingPath, tags: tags })
-    .then(
-      info => {
-        if (unlink) {
-          fs.unlinkSync(path.resolve(workingPath, '.buildinfo.json'))
-        }
-        return info
-      }
-    )
 }
 
 function onBuildFailed (log, imageName, buildError) {

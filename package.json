@@ -12,6 +12,7 @@
     "js-yaml": "^3.8.4",
     "pequod": "^1.7.3",
     "replicated-scribe": "^1.0.0",
+    "uuid": "^3.3.2",
     "when": "^3.7.8",
     "yargs": "^8.0.1"
   },
