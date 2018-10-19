@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.5.9"></a>
+## [1.5.9](https://github.com/npm-wharf/shipwright/compare/v1.5.8...v1.5.9) (2018-10-19)
+
+
+### Bug Fixes
+
+* update pequod version to correct issue with output path in export command. Use OS tmpdir for output file ([670bf67](https://github.com/npm-wharf/shipwright/commit/670bf67))
+
+
+
 <a name="1.5.8"></a>
 ## [1.5.8](https://github.com/npm-wharf/shipwright/compare/v1.5.7...v1.5.8) (2018-10-19)
 
