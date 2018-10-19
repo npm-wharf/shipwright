@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.5.10"></a>
+## [1.5.10](https://github.com/npm-wharf/shipwright/compare/v1.5.9...v1.5.10) (2018-10-19)
+
+
+### Bug Fixes
+
+* change memory to image factor to 10 when determining flatten approach ([85edb08](https://github.com/npm-wharf/shipwright/commit/85edb08))
+
+
+
 <a name="1.5.9"></a>
 ## [1.5.9](https://github.com/npm-wharf/shipwright/compare/v1.5.8...v1.5.9) (2018-10-19)
 
