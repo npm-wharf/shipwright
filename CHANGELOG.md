@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.5.4"></a>
+## [1.5.4](https://github.com/npm-wharf/shipwright/compare/v1.5.3...v1.5.4) (2018-10-19)
+
+
+### Bug Fixes
+
+* update pequod version and make minor change to how CMD is added back to imported images to fix issue with import change support ([6fc0550](https://github.com/npm-wharf/shipwright/commit/6fc0550))
+
+
+
 <a name="1.5.3"></a>
 ## [1.5.3](https://github.com/npm-wharf/shipwright/compare/v1.5.2...v1.5.3) (2018-10-19)
 
