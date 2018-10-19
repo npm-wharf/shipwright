@@ -196,7 +196,7 @@ function flattenImage (log, docker, initialImage, finalImage) {
       const freeMem = os.freemem()
       const imageSize = changes.size
       delete changes.size
-      const flatten = (imageSize * 2) > freeMem
+      const flatten = (imageSize * 10) > freeMem
         ? flattenByDisk
         : flattenByPipe
       log(`image size ${imageSize / MB} MB, free memory ${freeMem / MB} MB `)
