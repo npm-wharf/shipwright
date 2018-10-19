@@ -152,15 +152,50 @@ function exitOnError () {
 
 function flattenImage (log, docker, initialImage, finalImage) {
   log(`Flattening temporary image '${initialImage}' into '${finalImage}'.`)
-  return docker.create(`${initialImage}:latest`, { name: 'temp-container' })
-    .then(
-      () => {
-        return docker.export('temp-container')
-          .then(pipe => {
-            return docker.import('pipe', finalImage, { pipe })
-          })
+  const tag = `${initialImage}:latest`
+  return docker.inspect(tag)
+    .then(data => {
+      const user = data.Config.User
+      const working = data.Config.WorkingDir
+      const env = data.Config.Env || []
+      const ports = Object.keys(data.Config.ExposedPorts || {})
+      const cmd = data.Config.Cmd || []
+      const entry = data.Config.Entrypoint || []
+
+      const changes = []
+
+      if (user) {
+        changes.push(`USER ${user}`)
       }
-    )
+      if (working) {
+        changes.push(`WORKDIR ${working}`)
+      }
+      if (env.length > 0) {
+        env.forEach(e => {
+          changes.push(`ENV ${e}`)
+        })
+      }
+      if (ports.length > 0) {
+        ports.forEach(p => {
+          changes.push(`EXPOSE ${p}`)
+        })
+      }
+      if (cmd.length > 0) {
+        changes.push(`CMD ${cmd.join(' ')}`)
+      }
+      if (entry.length > 0) {
+        changes.push(`ENTRYPOINT ${JSON.stringify(entry)}`)
+      }
+      return docker.create(tag, { name: 'temp-container' })
+        .then(
+          () => {
+            return docker.export('temp-container')
+              .then(pipe => {
+                return docker.import('pipe', finalImage, { pipe, changes })
+              })
+          }
+        )
+    })
 }
 
 function getBuildInfo (goggles, unlink, workingPath, tags) {

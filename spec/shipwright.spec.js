@@ -12,6 +12,7 @@ const docker = {
   build: function () {},
   export: function () {},
   import: function () {},
+  inspect: function () {},
   pull: function () {},
   pushTags: function () {},
   tagImage: function () {}
@@ -679,6 +680,28 @@ describe('Shipwright', function () {
           .resolves({})
 
         dockerMock
+          .expects('inspect')
+          .withArgs(`${tempImage}:latest`)
+          .once()
+          .resolves({
+            Config: {
+              User: 'root',
+              Env: [
+                'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin',
+                'ONE=uno',
+                'TWO=dos'
+              ],
+              ExposedPorts: {
+                '443/tcp': {},
+                '80/tcp': {}
+              },
+              Cmd: [ '/bin/sh', '-c', 'this is a ./test' ],
+              WorkingDir: '/my/path',
+              Entrypoint: [ '/bin/sh', '-c', '= [ "node", "/src/server.js" ]' ]
+            }
+          })
+
+        dockerMock
           .expects('create')
           .withArgs(`${tempImage}:latest`, { name: 'temp-container' })
           .once()
@@ -692,7 +715,20 @@ describe('Shipwright', function () {
 
         dockerMock
           .expects('import')
-          .withArgs('pipe', imageName, { pipe: 'A-PIPE' })
+          .withArgs('pipe', imageName, {
+            pipe: 'A-PIPE',
+            changes: [
+              'USER root',
+              'WORKDIR /my/path',
+              'ENV PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin',
+              'ENV ONE=uno',
+              'ENV TWO=dos',
+              'EXPOSE 443/tcp',
+              'EXPOSE 80/tcp',
+              'CMD /bin/sh -c this is a ./test',
+              'ENTRYPOINT ["/bin/sh","-c","= [ \\"node\\", \\"/src/server.js\\" ]"]'
+            ]
+          })
           .once()
           .resolves({})
 
