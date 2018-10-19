@@ -146,7 +146,9 @@ function dockerLog (lines) {
     )
 }
 
-function exitOnError () {
+function exitOnError (e) {
+  console.log('shipwright failed - exiting')
+  console.log(e)
   process.exit(100)
 }
 
@@ -190,10 +192,10 @@ function flattenImage (log, docker, initialImage, finalImage) {
             () => {
               return docker.export('temp-container')
                 .then(pipe => {
-                  return docker.import('pipe', finalImage, { pipe, changes }).catch(e => console.log(e))
-                }).catch(e => console.log(e))
+                  return docker.import('pipe', finalImage, { pipe, changes })
+                })
             }
-          ).catch(e => console.log(e))
+          )
       }
       return docker.removeContainer('temp-container', { force: true })
         .then(onNoContainer, onNoContainer)
