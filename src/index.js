@@ -234,7 +234,11 @@ function getChangesForImport (docker, tag) {
       }
       if (env.length > 0) {
         env.forEach(e => {
-          changes.push(`ENV ${e}`)
+          let [k, v] = e.split('=')
+          if (v.indexOf(' ') >= 0) {
+            v = `"${v}"`
+          }
+          changes.push(`ENV ${k}=${v}`)
         })
       }
       if (ports.length > 0) {

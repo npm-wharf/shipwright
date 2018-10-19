@@ -901,7 +901,7 @@ describe('Shipwright', function () {
               User: 'root',
               Env: [
                 'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin',
-                'ONE=uno',
+                'ONE=a phrase with spaces',
                 'TWO=dos'
               ],
               ExposedPorts: {
@@ -937,7 +937,7 @@ describe('Shipwright', function () {
               'USER root',
               'WORKDIR /my/path',
               'ENV PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin',
-              'ENV ONE=uno',
+              'ENV ONE="a phrase with spaces"',
               'ENV TWO=dos',
               'EXPOSE 443/tcp',
               'EXPOSE 80/tcp',
