@@ -154,10 +154,11 @@ function exitOnError (e) {
   process.exit(100)
 }
 
-function flattenByDisk (docker, containerName, tag, finalImage, changes) {
+function flattenByDisk (log, docker, containerName, tag, finalImage, changes) {
   return docker.create(tag, { name: containerName })
     .then(() => {
       const fileName = './temp-container.tgz'
+      log(`Exporting container to file '${fileName}'.`)
       return docker.export(containerName, { output: fileName })
         .then(() => {
           return docker.import(fileName, finalImage, { changes })
@@ -171,9 +172,10 @@ function flattenByDisk (docker, containerName, tag, finalImage, changes) {
     })
 }
 
-function flattenByPipe (docker, containerName, tag, finalImage, changes) {
+function flattenByPipe (log, docker, containerName, tag, finalImage, changes) {
   return docker.create(tag, { name: containerName })
     .then(() => {
+      log(`Exporting container via pipe.`)
       return docker.export(containerName)
         .then(pipe => {
           return docker.import('pipe', finalImage, { pipe, changes })
@@ -194,7 +196,7 @@ function flattenImage (log, docker, initialImage, finalImage) {
         ? flattenByDisk
         : flattenByPipe
       delete changes.size
-      return flatten(docker, containerName, tag, finalImage, changes)
+      return flatten(log, docker, containerName, tag, finalImage, changes)
     })
 }
 

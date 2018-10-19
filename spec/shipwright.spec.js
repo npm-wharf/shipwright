@@ -803,6 +803,12 @@ describe('Shipwright', function () {
         )
       })
 
+      it('should log flattening beginning', function () {
+        log.should.have.been.calledWith(
+          `Exporting container via pipe.`
+        )
+      })
+
       it('should log flattening complete', function () {
         log.should.have.been.calledWith(
           `Image flattened into '${imageName}' successfully.`
@@ -1004,6 +1010,12 @@ describe('Shipwright', function () {
       it('should log flattening beginning', function () {
         log.should.have.been.calledWith(
           `Flattening temporary image '${tempImage}' into '${imageName}'.`
+        )
+      })
+
+      it('should log flattening beginning', function () {
+        log.should.have.been.calledWith(
+          `Exporting container to file './temp-container.tgz'.`
         )
       })
 
