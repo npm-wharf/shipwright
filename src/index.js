@@ -236,7 +236,11 @@ function getChangesForImport (docker, tag) {
         env.forEach(e => {
           let [k, v] = e.split('=')
           if (v.indexOf(' ') >= 0) {
-            v = `"${v}"`
+            let escaped = v
+              .replace(/\n/g, ' ')
+              .replace(/"/g, '\\"')
+              .replace(/!/g, '\\!')
+            v = `"${escaped}"`
           }
           changes.push(`ENV ${k}=${v}`)
         })
