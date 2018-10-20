@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.5.12"></a>
+## [1.5.12](https://github.com/npm-wharf/shipwright/compare/v1.5.11...v1.5.12) (2018-10-20)
+
+
+### Bug Fixes
+
+* escape environment values when importing change values ([a7f206f](https://github.com/npm-wharf/shipwright/commit/a7f206f))
+
+
+
 <a name="1.5.11"></a>
 ## [1.5.11](https://github.com/npm-wharf/shipwright/compare/v1.5.10...v1.5.11) (2018-10-19)
 
