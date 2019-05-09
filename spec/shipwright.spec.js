@@ -391,6 +391,120 @@ describe('Shipwright', function () {
       })
     })
 
+    describe('when building image from a branch that is not a valid docker tag', function () {
+      var imageFile
+      var imageName
+      var gogglesMock
+      var dockerMock
+      var exitSpy
+      before(function () {
+        exitSpy = sinon.stub()
+        captureExit(exitSpy)
+        imageFile = 'spec/.custom.json'
+        imageName = 'npm/npm-test'
+
+        dockerMock = sinon.mock(docker)
+        dockerMock
+          .expects('build')
+          .withArgs(imageName, {
+            args: undefined,
+            cacheFrom: undefined,
+            working: './spec',
+            file: 'Dockerfile.test'
+          })
+          .once()
+          .resolves({})
+
+        dockerMock
+          .expects('tagImage')
+          .withArgs(imageName)
+          .resolves({})
+
+        dockerMock
+          .expects('pushTags')
+          .withArgs(imageName)
+          .resolves({})
+
+        gogglesMock = sinon.mock(goggles)
+        gogglesMock
+          .expects('getInfo')
+          .withArgs({ repo: './spec', tags: [ 'b_v_c_s' ] })
+          .resolves({
+            tag: [ 'mrdev_my-branch_1.1.1_10_a1b2c3d4' ]
+          })
+          .once()
+
+        return shipwright.buildImage({
+          ltsOnly: true,
+          alwaysBuild: true,
+          repo: 'npm',
+          name: 'test',
+          namePrefix: 'npm-',
+          workingPath: './spec',
+          dockerFile: 'Dockerfile.test',
+          tags: [],
+          output: '.custom.json',
+          defaultInfo: {
+            branch: 'mrdev/my-branch',
+            isLTS: true
+          }
+        })
+      })
+
+      it('should log build start', function () {
+        log.should.have.been.calledWith(
+          `Building Docker image '${imageName}'.`
+        )
+      })
+
+      it('should log build complete', function () {
+        log.should.have.been.calledWith(
+          `Docker image '${imageName}' built successfully.`
+        )
+      })
+
+      it('should log tag started', function () {
+        log.should.have.been.calledWith('Tagging image.')
+      })
+
+      it('should log push started', function () {
+        log.should.have.been.calledWith('Pushing image.')
+      })
+
+      it('should log push success', function () {
+        log.should.have.been.calledWith(
+          `Docker image '${imageName}' was pushed successfully with tags: mrdev_my-branch_1.1.1_10_a1b2c3d4`
+        )
+      })
+
+      it('should log writing image file', function () {
+        log.should.have.been.calledWith(
+          `Writing image file to '${imageFile}'.`
+        )
+      })
+
+      it('should write correct info to file', function () {
+        var json = JSON.parse(fs.readFileSync(imageFile, 'utf8'))
+        json.should.eql({
+          image: imageName,
+          tags: [ 'mrdev_my-branch_1.1.1_10_a1b2c3d4' ]
+        })
+      })
+
+      it('should log writing image file success', function () {
+        log.should.have.been.calledWith(
+          `Image file written to '${imageFile}' successfully.`
+        )
+      })
+
+      after(function () {
+        dockerMock.verify()
+        gogglesMock.verify()
+        releaseExit()
+        fs.unlinkSync(path.resolve(imageFile))
+      })
+    })
+
     describe('when building image with cache-from-latest', function () {
       var imageFile
       var imageName
@@ -1192,6 +1306,119 @@ describe('Shipwright', function () {
       after(function () {
         dockerMock.verify()
         gogglesMock.verify()
+        fs.unlinkSync(path.resolve(imageFile))
+      })
+    })
+
+    describe('when building image with an image name that is an invalid docker tag', function () {
+      var imageFile
+      var imageName
+      var gogglesMock
+      var dockerMock
+      var exitSpy
+
+      before(function () {
+        exitSpy = sinon.stub()
+        captureExit(exitSpy)
+        imageFile = 'spec/.custom.json'
+        imageName = 'npm/npm-test.foo_bar_baz'
+
+        dockerMock = sinon.mock(docker)
+        dockerMock
+          .expects('build')
+          .withArgs(imageName, {
+            args: undefined,
+            cacheFrom: undefined,
+            working: './spec',
+            file: 'Dockerfile.test'
+          })
+          .once()
+          .resolves({})
+
+        dockerMock
+          .expects('tagImage')
+          .withArgs(imageName)
+          .resolves({})
+
+        dockerMock
+          .expects('pushTags')
+          .withArgs(imageName)
+          .resolves()
+
+        gogglesMock = sinon.mock(goggles)
+        gogglesMock
+          .expects('getInfo')
+          .withArgs({ repo: './spec', tags: [ 'v_c_s' ] })
+          .resolves({
+            tag: '1.1.1_10_a1b2c3d4'
+          })
+          .once()
+
+        return shipwright.buildImage({
+          ltsOnly: true,
+          repo: 'npm',
+          name: 'test.foo$bar/baz',
+          namePrefix: 'npm-',
+          workingPath: './spec',
+          dockerFile: 'Dockerfile.test',
+          tags: [ 'v_c_s' ],
+          output: '.custom.json',
+          defaultInfo: {
+            isLTS: true
+          }
+        })
+      })
+
+      it('should log build start', function () {
+        log.should.have.been.calledWith(
+          `Building Docker image '${imageName}'.`
+        )
+      })
+
+      it('should log build complete', function () {
+        log.should.have.been.calledWith(
+          `Docker image '${imageName}' built successfully.`
+        )
+      })
+
+      it('should log tag started', function () {
+        log.should.have.been.calledWith('Tagging image.')
+      })
+
+      it('should log push started', function () {
+        log.should.have.been.calledWith('Pushing image.')
+      })
+
+      it('should log push success', function () {
+        log.should.have.been.calledWith(
+          `Docker image '${imageName}' was pushed successfully with tags: 1.1.1_10_a1b2c3d4`
+        )
+      })
+
+      it('should log writing image file', function () {
+        log.should.have.been.calledWith(
+          `Writing image file to '${imageFile}'.`
+        )
+      })
+
+      it('should write correct info to file', function () {
+        var json = JSON.parse(fs.readFileSync(imageFile, 'utf8'))
+        json.should.eql({
+          image: imageName,
+          tags: '1.1.1_10_a1b2c3d4'
+        })
+      })
+
+      it('should log writing image file success', function () {
+        log.should.have.been.calledWith(
+          `Image file written to '${imageFile}' successfully.`
+        )
+      })
+
+      after(function () {
+        dockerMock.verify()
+        gogglesMock.verify()
+        releaseExit()
         fs.unlinkSync(path.resolve(imageFile))
       })
     })
