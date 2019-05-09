@@ -33,7 +33,8 @@ function buildImage (log, settings, goggles, dockerFactory, options) {
   let cacheFrom
   let preBuild = () => when({})
 
-  const baseImage = [ namePrefix, name, namePostfix ].join('')
+  const baseTagName = sanitizeTag(name)
+  const baseImage = [ namePrefix, baseTagName, namePostfix ].join('')
   const imageParts = [ repo, baseImage ]
   if (registry !== DEFAULT_REGISTRY && registry) {
     imageParts.unshift(registry)
@@ -321,7 +322,7 @@ function writeBuildInfo (log, goggles, workingPath, imageName, tags, info) {
           if (newInfo.tag && Array.isArray(newInfo.tag)) {
             newInfo.tag = newInfo.tag.reduce((acc, t) => {
               if (t && t.length > 0) {
-                acc.push(t)
+                acc.push(sanitizeTag(t))
               }
               return acc
             }, [])
@@ -370,6 +371,17 @@ function writeImageFile (log, imageFile, imageName, info) {
       })
     })
   }
+}
+
+function sanitizeTag(tag) {
+  // Return a valid docker tag as defined by https://docs.docker.com/engine/reference/commandline/tag/#extended-description
+  // replaces any invalid character with an undercore (_)
+
+  return ((tag || '')
+    .replace(/[^\w_\-\.]/gi, '_') // contain lowercase and uppercase letters, digits, underscores, periods and dashes
+    .replace(/^(\.|-)/, '_') // may not start with a period or a dash
+    .replace('/', '_') // remove slashes because RegExp doesn't like picking this out for some reason
+    .slice(0, 128)) // may contain a maximum of 128 characters
 }
 
 module.exports = function (log, goggles, docker, settings) {
