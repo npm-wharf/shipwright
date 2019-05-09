@@ -1310,7 +1310,7 @@ describe('Shipwright', function () {
       })
     })
 
-    describe('when building image with explicit tag foobarbaz', function () {
+    describe('when building image with an image name that is an invalid docker tag', function () {
       var imageFile
       var imageName
       var gogglesMock
