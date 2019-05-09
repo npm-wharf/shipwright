@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.6.0"></a>
+# [1.6.0](https://github.com/npm-wharf/shipwright/compare/v1.5.12...v1.6.0) (2019-05-09)
+
+
+### Features
+
+* add sanitization of docker tags ([b843f0b](https://github.com/npm-wharf/shipwright/commit/b843f0b))
+
+
+
 <a name="1.5.12"></a>
 ## [1.5.12](https://github.com/npm-wharf/shipwright/compare/v1.5.11...v1.5.12) (2018-10-20)
 
