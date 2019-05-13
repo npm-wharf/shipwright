@@ -2,4 +2,5 @@ coverage/
 node_modules/
 .nyc_output/
 package-lock.json
-.buildInfo.json
+.buildinfo.json
+soec/.buildinfo.json
