@@ -334,8 +334,11 @@ function writeBuildInfo (log, goggles, workingPath, imageName, tags, info) {
           } else {
             newInfo.continue = true
           }
+          // Ensure branh name is safe for use as a docker tag
+          if (newInfo.branch) newInfo,branch = sanitizeTag(newinfo.branch)
+
           const json = JSON.stringify(newInfo, null, 2)
-          const filePath = path.resolve(process.cwd(), '.buildInfo.json')
+          const filePath = path.resolve(process.cwd(), '.buildinfo.json')
           fs.writeFileSync(filePath, json, 'utf8')
           return newInfo
         },
