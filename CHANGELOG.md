@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.6.1"></a>
+## [1.6.1](https://github.com/npm-wharf/shipwright/compare/v1.6.0...v1.6.1) (2019-05-13)
+
+
+### Bug Fixes
+
+* fix .buildinfo.json filename for pequod to pick uo ([36ddcdd](https://github.com/npm-wharf/shipwright/commit/36ddcdd))
+
+
+
 <a name="1.6.0"></a>
 # [1.6.0](https://github.com/npm-wharf/shipwright/compare/v1.5.12...v1.6.0) (2019-05-09)
 
