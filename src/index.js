@@ -144,7 +144,7 @@ function dockerLog (lines) {
     .forEach(
       line => {
         if (line) {
-          console.log('\u1F433  ' + line)
+          console.log('\u{1F433}  ' + line)
         }
       }
     )
