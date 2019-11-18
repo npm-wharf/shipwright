@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.6.3"></a>
+## [1.6.3](https://github.com/npm-wharf/shipwright/compare/v1.6.2...v1.6.3) (2019-11-18)
+
+
+### Bug Fixes
+
+* render whale character correctly in javascript -- needs a code point escape for hex unicode numbers ([c522dd7](https://github.com/npm-wharf/shipwright/commit/c522dd7))
+
+
+
 <a name="1.6.2"></a>
 ## [1.6.2](https://github.com/npm-wharf/shipwright/compare/v1.6.1...v1.6.2) (2019-05-14)
 
