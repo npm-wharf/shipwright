@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.6.4"></a>
+## [1.6.4](https://github.com/npm-wharf/shipwright/compare/v1.6.2...v1.6.4) (2020-06-10)
+
+
+### Bug Fixes
+
+* render whale character correctly in javascript -- needs a code point escape for hex unicode numbers ([c522dd7](https://github.com/npm-wharf/shipwright/commit/c522dd7)), closes [/dmitripavlutin.com/what-every-javascript-developer-should-know-about-unicode/#3](https://github.com//dmitripavlutin.com/what-every-javascript-developer-should-know-about-unicode//issues/3)
+
+
+
 <a name="1.6.3"></a>
 ## [1.6.3](https://github.com/npm-wharf/shipwright/compare/v1.6.2...v1.6.3) (2019-11-18)
 
