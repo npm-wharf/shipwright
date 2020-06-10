@@ -216,7 +216,7 @@ describe('GitHub', function () {
 
     it('should reject with error when module is invalid', function () {
       return github.loadModule({}, { module: '../spec/plugins/invalid' })
-        .should.be.rejectedWith(Error, "Failed to load PR module '../spec/plugins/invalid' due to error: Unexpected token ?")
+      .should.be.rejectedWith(Error, /Failed to load PR module \'..\/spec\/plugins\/invalid\' due to error: Unexpected token/)
     })
 
     describe('when valid module is provided', function () {
