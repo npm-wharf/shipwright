@@ -1,13 +1,13 @@
 {
   "name": "@npm-wharf/shipwright",
-  "version": "1.6.3",
+  "version": "1.6.4",
   "description": "artifact packaging for service builds",
   "main": "src/index.js",
   "bin": {
     "shipwright": "./bin/shipwright.js"
   },
   "dependencies": {
-    "buildgoggles": "^0.5.2",
+    "@npm-wharf/buildgoggles": "^1.0.0",
     "github-change-remote-file": "^4.2.0",
     "js-yaml": "^3.8.4",
     "pequod": "^1.7.4",
