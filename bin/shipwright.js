@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 var format = require('util').format
-var goggles = require('buildgoggles')
+var goggles = require('@npm-wharf/buildgoggles')
 var githubChangeRemoteFile = require('github-change-remote-file')
 var pequod = require('pequod')
 var docker = function (sudo) {
