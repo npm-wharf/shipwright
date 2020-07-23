@@ -65,7 +65,7 @@ function build (info, settings) {
     },
     'lts-only': {
       describe: 'limits the build for LTS versions of Node only',
-      default: true,
+      default: false,
       boolean: 'boolean'
     },
     'no-push': {
