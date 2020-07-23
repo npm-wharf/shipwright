@@ -1,6 +1,6 @@
 {
   "name": "@npm-wharf/shipwright",
-  "version": "1.6.5",
+  "version": "1.6.6",
   "description": "artifact packaging for service builds",
   "main": "src/index.js",
   "bin": {
